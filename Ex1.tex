@@ -6,6 +6,7 @@
 \usepackage[shortlabels]{enumitem}
 \usepackage{geometry}
 \usepackage{bm}
+\usepackage{amssymb}
 \geometry{a4paper,scale=0.75}
 \newcommand{\jie}{$\star$ }
 \newcommand{\by}{\bm{y}}
@@ -290,14 +291,19 @@ The moment generating function is
 \bigskip
 
 \jie
-If $x \sim N(\mu,\Sigma)$, then $\forall a \neq 0$, $a^T$ is a multivariate normal distribution.
+If $x \sim N(\mu,\Sigma)$, then $\forall a \neq 0$, $a^Tx$ is a univariate normal distribution.
 $$E(a^Tx) = a^TE(x) = a^T\mu,$$
 $$Var(a^Tx) = a^T cov(x) a = a^T \Sigma a.$$
 Then, $a^T x \sim N(a^T\mu,a^T \Sigma a)$, it's moment generating function is
-$$E\{\exp(t^Ta^Tx)\} = \exp\{t^Ta^T\mu + t^T(a^T\Sigma a)t/2\} = exp\{ (ta)^T \mu + (ta)^T \Sigma (ta)/2\} $$
-Let $t= ta$, therefore, the MGF is as above.
+$$E\{\exp(ta^Tx)\} = \exp\{ta^T\mu + t^2(a^T\Sigma a)/2\} = exp\{ (ta)^T \mu + (ta)^T \Sigma (ta)/2\} $$
+Let $t= ta$, therefore, the MGF is
+$$E(\exp \{t^T x\}) = \exp(t^T \mu + t^T \Sigma t / 2).$$
 
-
+If the MGF is
+$$E(\exp \{t^T x\}) = \exp(t^T \mu + t^T \Sigma t / 2),$$
+then for all $a \neq 0$, $t \in \mathbb{R}$,
+$$E\{\exp(ta^Tx)\} = exp\{ (ta)^T \mu + (ta)^T \Sigma (ta)/2\} = \exp\{ta^T\mu + t^2(a^T\Sigma a)/2\} $$
+Therefore, $a^T x $ is univariate normal.
 
 \bigskip
 
@@ -480,6 +486,47 @@ x^2 - 2bx + c &=& x^2 - 2bx + b^2 - b^2 + c \\
 \end{eqnarray*}
 }
 Explain briefly how one may interpret this conditional distribution as a linear regression on $x_2$, where the regression matrix can be read off the precision matrix.
+
+\bigskip
+
+\jie
+The conditional distribution
+$$p(x_1|x_2) = \frac{p(x_1,x_2)}{p(x_2)} = \frac{p(x)}{p(x_2)} \propto p(x).$$
+The log pdf is
+\begin{align*}
+    \log p(x_1|x_2) &\propto \log p(x) \\
+    &\propto \log (2\pi)^{\frac{p}{2}} |\Sigma|^{-1} \exp \{ -\half (x-\mu)^T \Sigma^{-1} (x-\mu)\} \\
+    &\propto -\half (x-\mu)^T\Sigma^{-1} (x-\mu) \\
+    &= -\half \begin{bmatrix}
+    (x_1-\mu_1)^T & (x_2-\mu_2)^T
+    \end{bmatrix}
+    \begin{bmatrix}
+    \Omega_{11} & \Omega_{12} \\
+    \Omega_{21} & \Omega_{22}
+    \end{bmatrix}
+    \begin{bmatrix}
+    x_1-\mu_1 \\
+    x_2-\mu_2
+    \end{bmatrix} \\
+    &= -\half \begin{bmatrix}
+    (x_1-\mu_1)^T\Omega_{11} + (x_2-\mu_2)^T\Omega_{21} & (x_1-\mu_1)^T\Omega_{12} + (x_2-\mu_2)^T\Omega_{22}
+    \end{bmatrix}
+    \begin{bmatrix}
+    x_1-\mu_1 \\
+    x_2-\mu_2
+    \end{bmatrix}\\
+    &= -\half \{ (x_1-\mu_1)^T\Omega_{11}(x_1-\mu_1) + (x_2-\mu_2)^T\Omega_{21}(x_1-\mu_1) \\&+ (x_1-\mu_1)^T\Omega_{12}(x_2-\mu_2) + (x_2-\mu_2)^T\Omega_{22}(x_2-\mu_2) \} \\
+    &= -\half \{ x_1^T \Omega_{11} x_1 -  2x_1^T (\Omega_{11} \mu_1 + \half \Omega_{21}^T \mu_2 + \half \Omega_{12}\mu_2 - \half \Omega_{21}^T x_2 - \half \Omega_{12}x_2) \} \\
+    &= -\half \{ x_1^T \Omega_{11} x_1 -  2x_1^T (\Omega_{11} \mu_1 + \Omega_{12} \mu_2 - \Omega_{12} x_2) \} 
+\end{align*}
+Therefore,
+\begin{align*}
+    p(x_1|x_2) &\equiv N(\Omega_{11}^{-1} (\Omega_{11} \mu_1 + \Omega_{12} \mu_2 - \Omega_{12} x_2), \Omega_{11}^{-1}) \\
+    &\equiv N(\mu_1 + \Omega_{11}^{-1}\Omega_{12} \mu_2 - \Omega_{11}^{-1}\Omega_{12} x_2, \Omega_{11}^{-1}) 
+\end{align*}
+
+
+\bigskip 
 
 \end{enumerate}
 
