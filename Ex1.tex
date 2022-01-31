@@ -11,6 +11,7 @@
 \newcommand{\by}{\bm{y}}
 \newcommand{\bx}{\bm{x}}
 \newcommand{\iid}{\overset{\text{iid}}{\sim}}
+\newcommand{\half}{\frac{1}{2}}
 %% ys
 
 \newcommand{\E}{\mbox{E}}
@@ -217,7 +218,9 @@ The marginal distribution of $x$ is
     &= \int (2\pi w^{-1})^{\frac{1}{2}} \exp \{ -\frac{1}{2w^{-1}} (x-m)^2 \} w^{\frac{a}{2}-1} \exp \{-\frac{b}{2}w\} dw \\
     &\propto \int w^{\frac{a}{2}+\frac{1}{2} -1} \exp \{-(\frac{b}{2}+\frac{(x-m)^2}{2})w \} dw \\
     &\propto \int \frac{\Gamma(\frac{a}{2} + \frac{1}{2})}{(\frac{b}{2} + \frac{(x-m)^2}{2} )^{\frac{a}{2}+\frac{1}{2}} } w^{\frac{a}{2}+\frac{1}{2} -1} \exp \{-(\frac{b}{2}+\frac{(x-m)^2}{2})w \} dw \cdot \frac{(\frac{b}{2} + \frac{(x-m)^2}{2} )^{\frac{a}{2}+\frac{1}{2}} }{\Gamma(\frac{a}{2} + \frac{1}{2})} \\
-    &\propto [b+(x-m)^2]^{\frac{a+1}{2}} \\
+    &\propto [b+(x-m)^2]^{-\frac{a+1}{2}} \\
+    &\propto [1+\frac{1}{a}(x-m)^2/(\frac{b}{a})]^{-\frac{a+1}{2}} \\
+    &\equiv t(a,m,(\frac{b}{a})^{1/2}).
 \end{align*}
 
 \bigskip
@@ -242,19 +245,128 @@ Here's an alternative characterization of the univariate normal distribution in 
 
 \item First, some simple moment identities.  The covariance matrix $\mbox{cov}(x)$ of a vector-valued random variable $x$ is defined as the matrix whose $(i,j)$ entry is the covariance between $x_i$ and $x_j$.  In matrix notation, $\mbox{cov}(x) = E\{ (x - \mu) (x - \mu)^T \}$, where $\mu$ is the mean vector whose $i$th component is $E(x_i)$.  Prove the following: (1) $\mbox{cov}(x) = E(xx^T) - \mu \mu^T$; and (2) $\mbox{cov}(Ax + b) = A \mbox{cov}(x) A^T$ for matrix $A$ and vector $b$.
 
+\bigskip
+
+\jie
+\begin{align*}
+    cov(x) &= E\{ (x-\mu)(x-mu)^T\} \\
+    &= E\{xx^T - x\mu^T -\mu x^T + \mu \mu^T \} \\
+    &= E\{xx^T\} - E\{x\}\mu^T - \mu E\{x\}^T + \mu \mu^T \\
+    &= E\{xx^T\} - \mu \mu^T.
+\end{align*}
+
+\begin{align*}
+    cov(Ax+b) &= E\{(Ax+b)(Ax+b)^T\} - (A\mu+b)(A\mu+b)^T \\
+    &= E\{Axx^TA^T + Axb^T + bx^TA^T + bb^T\} - (A\mu\mu^TA^T + b\mu^TA^T + A\mu b^T +bb^T) \\
+    &= A E\{xx^T\}A^T + A\mu b^T + b\mu^TA^T +bb^T - (A\mu\mu^TA^T + b\mu^TA^T + A\mu b^T +bb^T) \\
+    &= A E\{xx^T\}A^T - A\mu \mu^T A^T \\
+    &= A cov(x) A^T
+\end{align*}
+
+\bigskip
+
 \item Consider the random vector $z = (z_1, \ldots, z_p)^T$, with each entry having an independent standard normal distribution (that is, mean 0 and variance 1).  Derive the probability density function (PDF) and moment-generating function (MGF) of $z$, expressed in vector notation.\footnote{Remember that the MGF of a vector-valued random variable $x$ is the expected value of the quantity $\exp(t^T x)$, as a function of the vector argument $t$.}   We say that $z$ has a standard multivariate normal distribution.
+
+\bigskip
+
+\jie
+The probability density function
+\begin{align*}
+    p(z) &= \prod_{i=1}^p (2\pi)^{-\frac{1}{2}} \exp \{-\half z_i^2\} \\
+    &= (2\pi)^{-\frac{p}{2}} \exp \{ -\half zz^T\}
+\end{align*}
+The moment generating function is
+\begin{align*}
+    E\{\exp(t^Tz)\} &= E\{\prod_{i=1}^p \exp(t_iz_i)\} \\
+    &= \prod_{i=1}^p \exp(\frac{t_i^2}{2}) \\
+    &= \exp (\half \sum_{i=1}^p t_i^2) \\
+    &= \exp(\frac{tt^T}{2})
+\end{align*}
+
+\bigskip
 
 \item A vector-valued random variable $x = (x_1, \ldots, x_p)^T$ has a \textit{multivariate normal distribution} if and only if every linear combination of its components is univariate normal.  That is, for all vectors $a$ not identically zero, the scalar quantity $z = a^T x$ is normally distributed.  From this definition, prove that $x$ is multivariate normal, written $x \sim \N(\mu, \Sigma)$, if and only if its moment-generating function is of the form $E(\exp \{t^T x\}) = \exp(t^T \mu + t^T \Sigma t / 2)$.  Hint: what are the mean, variance, and moment-generating function of $z$, expressed in terms of moments of $x$?
 
+\bigskip
+
+\jie
+If $x \sim N(\mu,\Sigma)$, then $\forall a \neq 0$, $a^T$ is a multivariate normal distribution.
+$$E(a^Tx) = a^TE(x) = a^T\mu,$$
+$$Var(a^Tx) = a^T cov(x) a = a^T \Sigma a.$$
+Then, $a^T x \sim N(a^T\mu,a^T \Sigma a)$, it's moment generating function is
+$$E\{\exp(t^Ta^Tx)\} = \exp\{t^Ta^T\mu + t^T(a^T\Sigma a)t/2\} = exp\{ (ta)^T \mu + (ta)^T \Sigma (ta)/2\} $$
+Let $t= ta$, therefore, the MGF is as above.
+
+
+
+\bigskip
+
 \item Another basic theorem is that a random vector is multivariate normal if and only if it is an affine transformation of independent univariate normals.  You will first prove the ``if'' statement.  Let $z$ have a standard multivariate normal distribution, and define the random vector $x = L z + \mu$ for some $p \times p$ matrix $L$ of full column rank.\footnote{The full rank restriction turns out to be unnecessary; relaxing it leads to what is called the \textit{singular normal distribution.}}   Prove that $x$ is multivariate normal.  In addition, use the moment identities you proved above to compute the expected value and covariance matrix of $x$.  
+
+\bigskip
+
+\jie
+If $z \sim N(0,I)$, let $x = Lz + \mu$. Then, the moment generating function of $x$ is
+\begin{align*}
+	E\{ exp(t^T x) \} &= E\{ exp(t^T Lz + t^T \mu) \} \\
+	&= E\{exp((L^Tt)^Tz)\} \cdot exp(t^T\mu) \\
+	&= exp\{ \half (L^Tt)^T(L^Tt)\} \cdot exp(t^T\mu) \\
+	&= exp\{ \half t^TLL^Tt+t^T\mu \}
+\end{align*}
+Based on the conclusion in (C) and the uniqueness of the MGF, therefore, $x = Lz \mu \sim N(\mu,\Sigma=LL^T)$.
+
+\bigskip
 
 \item Now for the ``only if.''  Suppose that $x$ has a multivariate normal distribution.  Prove that $x$ can be written as an affine transformation of standard normal random variables.  (Note: a good way to prove that something can be done is to do it!  Think about a matrix $A$ such that $A A^T = \Sigma$.)  Use this insight to propose an algorithm for simulating multivariate normal random variables with a specified mean and covariance matrix.
 
+\bigskip
+
+\jie
+If $x \sim N(\mu,\Sigma)$, $\Sigma$ is the covariance matrix which is positive-semi-definite, then it can be decomposed as $\Sigma = AA^T$. The MGF of $x$ is
+\begin{align*}
+	E\{ exp(t^T x) \} &= exp\{ \half t^T \Sigma t+t^T\mu \} \\
+	&= exp\{ \half t^T AA^T t+t^T\mu \} 
+\end{align*}
+Let $z \sim N(0,I)$, $y = Az+\mu$. Then based on (D), the MGF of $y$ is 
+\begin{align*}
+	E\{ exp(t^T y) \} &= exp\{ \half t^T AA^T t+t^T\mu \} = E\{ exp(t^T x) \}
+\end{align*}
+Because the uniqueness of MGF, $x=y= Az+\mu$.
+
+\bigskip
+
 \item Use this last result, together with the PDF of a standard multivariate normal, to show that the PDF of a multivariate normal $x \sim \N(\mu, \Sigma)$ takes the form $p(x) = C \exp\{-Q(x-\mu)/2\}$ for some constant $C$ and quadratic form $Q(x-\mu)$.\footnote{A useful fact is that the Jacobian matrix of the linear map $x \rightarrow Ax$ is simply $A$.}
 
+\bigskip
+
+\jie
+If $x \sim N(\mu, \Sigma)$, then $x = A z + \mu$, where $z \sim N(0, I)$, and $\Sigma =  AA^T$.
+Therefore, the pdf of $x$ is
+\begin{align*}
+    p(x) &= p(x= A z + \mu) |A^{-1}| \\
+    &= (2\pi)^{-\frac{p}{2}} \exp \{ -\half (A^{-1}(x-\mu))^T(A^{-1}(x-\mu)) \} |A^{-1}| \\
+    &= (2\pi)^{-\frac{p}{2}} |A^{-1}| \exp \{ -\half (x-\mu)^T (A^TA)^{-1} (x-\mu) \}  \\
+    &= (2\pi)^{-\frac{p}{2}} |\Sigma|^{-\half} \exp \{ -\half (x-\mu)^T \Sigma^{-1} (x-\mu) \}  \\
+\end{align*}
 %\item Let $x$ be as above and suppose that $y = A x$, where $A$ is an $n \times p$ matrix of full column rank (i.e.~its columns are linearly independent).  Compute the MGF of $y$.  If $n < p$, what the PDF of $y$?  If $n>p$, why can we not write down the PDF of $y$?\footnote{This doesn't make it an invalid distribution!  It is perfectly valid, and is usually referred to as the singular normal distribution---singular in the sense of a square matrix that lacks an inverse.}
 
 \item Let $x_1 \sim N(\mu_1, \Sigma_1)$ and $x_2 \sim N(\mu_2, \Sigma_2)$, where $x_1$ and $x_2$ are independent of each other.  Let $y = A x_1 + B x_2$ for matrices $A,B$ of full column rank and appropriate dimension.  Note that $x_1$ and $x_2$ need not have the same dimension, as long as $A x_1$ and $B x_2$ do.  Use your previous results to characterize the distribution of $y$.
+
+\bigskip
+
+\jie
+The MGF of $y$ is
+\begin{align*}
+    E\{exp(t^Y y)\} &= E\{exp[t^T(Ax_1 + Bx_2)]\} \\
+    & = E\{exp((A^T x)^T x_1)\} \cdot E\{exp((B^Tt)^Tx_2)\} \\
+    &= exp\{ \half (A^Tt)^T\Sigma_1(A^Tt) + (A^Tt)^T\mu_1 \} \cdot 
+    exp\{ \half (B^Tt)^T\Sigma_2(B^Tt) + (B^Tt)^T\mu_2 \} \\
+    &= exp \{\half t^T(A\Sigma_1A^T + B\Sigma_2B^T)t + t^T(A\mu_1+B\mu_2) \}
+\end{align*}
+Therefore,
+$$y \sim N(A\mu_1+B\mu_2, A\Sigma_1A^T + B\Sigma_2B^T).$$
+
+\bigskip
 
 \end{enumerate}
 
@@ -277,6 +389,29 @@ Clearly $\Sigma_{21} = \Sigma_{12}^T$, as $\Sigma$ is a symmetric matrix.
 
 \item Derive the marginal distribution of $x_1$. (Remember your result about affine transformations.)
 
+\bigskip
+
+\jie
+$$x_1 = \left[ I | 0 \right]_{k \times p} x.$$
+Let $A = \left[ I | 0 \right]_{k \times p}$, then $x_1 = Ax$. Then,
+$$x_1 \sim N(A\mu, A\Sigma A^T),$$
+$$A\mu=\mu_1,$$
+$$A\Sigma A^T =\begin{bmatrix}
+I & 0
+\end{bmatrix}
+\begin{bmatrix}
+\Sigma_{11} & \Sigma_{12} \\
+\Sigma_{21} & \Sigma_{22}
+\end{bmatrix}
+\begin{bmatrix}
+I \\
+0
+\end{bmatrix} = \Sigma_{11}.$$
+Therefore,
+$$x_1 \sim N(\mu_1, \Sigma_{11}).$$
+
+\bigskip
+
 \item Let $\Omega = \Sigma^{-1}$ be the inverse covariance matrix, or precision matrix, of $x$, and partition $\Omega$ just as you did $\Sigma$:
 $$
 \Omega =
@@ -288,6 +423,55 @@ $$
 \right) \, .
 $$
 Using (or deriving!) identities for the inverse of a partitioned matrix, express each block of $\Omega$ in terms of blocks of $\Sigma$.
+
+\bigskip
+
+\jie 
+Denote
+$$\Sigma = \begin{bmatrix}
+\Sigma_{11} & \Sigma_{12} \\
+\Sigma_{21} & \Sigma_{22}
+\end{bmatrix},$$
+and
+$$\Omega = \Sigma^{-1} = \begin{bmatrix}
+\Omega_{11} & \Omega_{12} \\
+\Omega_{21} & \Omega_{22}
+\end{bmatrix}.$$
+We have
+\begin{align*}
+    \Sigma \Omega = \begin{bmatrix}
+\Sigma_{11} & \Sigma_{12} \\
+\Sigma_{21} & \Sigma_{22}
+\end{bmatrix}
+\begin{bmatrix}
+\Omega_{11} & \Omega_{12} \\
+\Omega_{21} & \Omega_{22}
+\end{bmatrix}
+=
+\begin{bmatrix}
+\Sigma_{11} \Omega_{11} + \Sigma_{12} \Omega_{21} & \Sigma_{11} \Omega_{12} + \Sigma_{12} \Omega_{22} \\
+\Sigma_{21} \Omega_{11} + \Sigma_{22} \Omega_{21} & \Sigma_{12} \Omega_{12} + \Sigma_{22} \Omega_{22}
+\end{bmatrix}
+=
+\begin{bmatrix}
+I & 0 \\
+0 & I
+\end{bmatrix}
+\end{align*}
+
+$$\Sigma_{11}^{-1} (\Sigma_{11} \Omega_{12} + \Sigma_{12}\Omega_{22}) = 0,$$
+$$\Sigma_{22}^{-1} (\Sigma_{21}\Omega_{11} + \Sigma_{22}\Omega_{21}) = 0.$$
+Then,
+$$\Omega_{12} = - \Sigma_{11}^{-1} \Sigma_{12} \Omega_{22},$$
+$$\Omega_{21} = - \Sigma_{22}^{-1} \Sigma_{21} \Omega_{11}.$$
+Then we have,
+$$\Sigma_{11} \Omega_{11} - \Sigma_{12} \Sigma_{22}^{-1} \Sigma_{12} \Omega_{11} = I,$$
+$$-\Sigma_{12} \Sigma_{11}^{-1} \Sigma_{12} \Omega_{22} + \Sigma_{22} \Omega_{22} = I.$$
+Therefore,
+$$\Omega_{11} = (\Sigma_{11} - \Sigma_{12}\Sigma_{22}^{-1}\Sigma_{12})^{-1},$$
+$$\Omega_{22} = (\Sigma_{22} - \Sigma_{12}\Sigma_{11}^{-1} \Sigma_{12})^{-1}.$$
+
+\bigskip 
 
 \item Derive the conditional distribution for $x_1$, given $x_2$, in terms of the partitioned elements of $x$, $\mu$, and $\Sigma$.  There are several keys to inner peace: work with densities on a log scale, ignore constants that don't affect $x_1$, and remember the cute trick of completing the square from basic algebra.\footnote{In scalar form:
 \begin{eqnarray*}
@@ -303,7 +487,7 @@ Explain briefly how one may interpret this conditional distribution as a linear 
 \section{Multiple regression: three classical principles for inference}
 
 Suppose we observe data that we believe to follow a linear model, where $y_i = x_i^T \beta + \epsilon_i$ for $i = 1, \ldots, n$.
-To fix notation: $y_i$ is a scalar response; $x_i$ is a $p$-vector of predictors or features; and the $\epsilon_i$ are errors.  By convention we write vectors as column vectors.  Thus $x_i^T \beta$ will be our typical way of writing the inner product between the vectors $x_i$ and $\beta$.\marginnote[-4pc]{Notice we have no explicit intercept.  For now you can imagine that all the variables have had their sample means subtracted, making an intercept superfluous.  Or you can just assume that the leading entry in every $x_i$ is equal to 1, in which case $\beta_1$ will be an intercept term.}
+To fix notation: $y_i$ is a scalar response; $x_i$ is a $p$-vector of predictors or features; and the $\epsilon_i$ are errors.  By convention we write vectors as column vectors.  Thus $x_i^T \beta$ will be our typical way of writing the inner product between the vectors $x_i$ and $\beta$.\footnote{Notice we have no explicit intercept.  For now you can imagine that all the variables have had their sample means subtracted, making an intercept superfluous.  Or you can just assume that the leading entry in every $x_i$ is equal to 1, in which case $\beta_1$ will be an intercept term.}
 
 Consider three classic inferential principles that are widely used to estimate $\beta$, the vector of regression coefficients.  In this context we will let $\hat{\beta}$ denote an estimate of $\beta$, $y = (y_1, \ldots, y_n)^T$ the vector of outcomes, $X$ the matrix of predictors whose ith row is $x_i^T$, and $\epsilon$ the vector of residuals $(\epsilon_1, \ldots, \epsilon_n)^T$.  
  
