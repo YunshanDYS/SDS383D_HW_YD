@@ -7,6 +7,8 @@
 \usepackage{geometry}
 \usepackage{bm}
 \usepackage{amssymb}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 \geometry{a4paper,scale=0.75}
 \newcommand{\jie}{$\star$ }
 \newcommand{\by}{\bm{y}}
@@ -150,9 +152,9 @@ The posterior is
     p(\theta|x_1,\dots,x_N) &\propto p(x_1,\dots,x_N |\theta) p(\theta) \\
     &\propto \prod_{i=1}^N \exp \{-\frac{1}{2\sigma^2} (x_i-\theta)^2\} \cdot \exp \{-\frac{1}{2v^2} (\theta-m)^2\} \\
     &= \exp \{-\frac{1}{2\sigma^2} \sum_{i=1}^N (x_i-\theta)^2 - \frac{1}{2v^2}(\theta-m)^2 \} \\
-    &= \exp \{-\frac{1}{2\sigma^2} [\sum_{i=1}^N (x_i-\bar{x})^2 + N(\bar{x}-\theta)^2] - \frac{1}{2v^2}(\theta-m)^2 \} \\
-    &\propto \exp \{ -\frac{1}{2} [(\frac{N}{\sigma^2}+\frac{1}{v^2}) \theta^2 - 2(\frac{N}{\sigma^2} \bar{x} + \frac{m}{v^2}) \theta] \} \\
-    &\equiv N( (\frac{N}{\sigma^2}+\frac{1}{v^2})^{-1}(\frac{N}{\sigma^2} \bar{x} + \frac{m}{v^2}), (\frac{N}{\sigma^2}+\frac{1}{v^2})^{-1} ).
+    &= \exp \{-\frac{1}{2\sigma^2} [\sum_{i=1}^N (x_i-\bar{x})^2 + N(\bar{x}-\theta)^2] - \frac{1}{2v}(\theta-m)^2 \} \\
+    &\propto \exp \{ -\frac{1}{2} [(\frac{N}{\sigma^2}+\frac{1}{v}) \theta^2 - 2(\frac{N}{\sigma^2} \bar{x} + \frac{m}{v}) \theta] \} \\
+    &\equiv N( (\frac{N}{\sigma^2}+\frac{1}{v})^{-1}(\frac{N}{\sigma^2} \bar{x} + \frac{m}{v}), (\frac{N}{\sigma^2}+\frac{1}{v})^{-1} ).
 \end{align*}
 
 \bigskip
@@ -199,10 +201,11 @@ $$\theta \sim N(m,v).$$
     p(\theta|x_1,\dots,x_N) &\propto p(x_1,\dots,x_N |\theta) p(\theta) \\
     &\propto \prod_{i=1}^N \exp \{-\frac{1}{2\sigma_i^2} (x_i-\theta)^2\} \cdot \exp \{-\frac{1}{2v^2} (\theta-m)^2\} \\
     &\propto \exp \{ -\frac{1}{2} [\sum_{i=1}^N \frac{1}{\sigma_i^2} (x_i-\theta)^2 + \frac{1}{v} (\theta-m)^2] \} \\
-    &\propto \exp \{ -\frac{1}{2} [(\sum_{i=1}^N \frac{1}{\sigma_i^2} + \frac{1}{v}) \theta^2 - 2 (\sum_{i=1}^N \frac{x_i}{\sigma_i^2} + \frac{\theta}{v})] \} \\
+    &\propto \exp \{ -\frac{1}{2} [(\sum_{i=1}^N \frac{1}{\sigma_i^2} + \frac{1}{v}) \theta^2 - 2 (\sum_{i=1}^N \frac{x_i}{\sigma_i^2} + \frac{m}{v})\theta] \} \\
     &\equiv N(\mu, \sigma^2),
 \end{align*}
-where $\sigma^2 = (\sum_{i=1}^N \frac{1}{\sigma_i^2} + \frac{1}{v} )^{-1}$, $\mu = \sigma^2 (\sum_{i=1}^N \frac{x_i}{\sigma_i^2} + \frac{\theta}{v})$.
+where $\sigma^2 = (\sum_{i=1}^N \frac{1}{\sigma_i^2} + \frac{1}{v} )^{-1}$, $\mu = \sigma^2 (\sum_{i=1}^N \frac{x_i}{\sigma_i^2} + \frac{m}{v})$.
+Therefore, the posterior mean in a form that is clearly interpretable as a weighted average of the observations and the prior mean.
 
 \bigskip
 
@@ -216,7 +219,7 @@ $$w \sim Ga(\frac{a}{2}, \frac{b}{2}).$$
 The marginal distribution of $x$ is
 \begin{align*}
     p(x) &= \int p(x|w) p(w) dw \\
-    &= \int (2\pi w^{-1})^{\frac{1}{2}} \exp \{ -\frac{1}{2w^{-1}} (x-m)^2 \} w^{\frac{a}{2}-1} \exp \{-\frac{b}{2}w\} dw \\
+    &\propto \int (2\pi w^{-1})^{\frac{1}{2}} \exp \{ -\frac{1}{2w^{-1}} (x-m)^2 \} w^{\frac{a}{2}-1} \exp \{-\frac{b}{2}w\} dw \\
     &\propto \int w^{\frac{a}{2}+\frac{1}{2} -1} \exp \{-(\frac{b}{2}+\frac{(x-m)^2}{2})w \} dw \\
     &\propto \int \frac{\Gamma(\frac{a}{2} + \frac{1}{2})}{(\frac{b}{2} + \frac{(x-m)^2}{2} )^{\frac{a}{2}+\frac{1}{2}} } w^{\frac{a}{2}+\frac{1}{2} -1} \exp \{-(\frac{b}{2}+\frac{(x-m)^2}{2})w \} dw \cdot \frac{(\frac{b}{2} + \frac{(x-m)^2}{2} )^{\frac{a}{2}+\frac{1}{2}} }{\Gamma(\frac{a}{2} + \frac{1}{2})} \\
     &\propto [b+(x-m)^2]^{-\frac{a+1}{2}} \\
@@ -556,13 +559,93 @@ Here $p_i(y_i \mid \sigma^2)$ is the conditional probability density function of
 
 \item Show that all three of these principles lead to the same estimator.  What is the variance of this estimator under the assumption that each $\epsilon_i$ is independent and identically distribution with variance $\sigma^2$?  
 
-\item As mentioned above, the estimator in the previous part corresponds to the assumption that $y \sim N(X \beta, \sigma^2 I)$.  What happens if we instead postulate that $y \sim N(X \beta, \Sigma)$, where $\Sigma$ is an arbitrary known covariance matrix, not necessarily proportional to the identity?  What is the maximum likelihood estimate for $\beta$ now, and what is the variance of this estimator?   
+\bigskip
+
+\jie
+\textbf{Maximum likelihood}
+\begin{align*}
+    \hat{\beta} &= \arg \max_{\beta \in \mathcal{R}^p} \left\{ \prod_{i=1}^n p(y_i \mid \beta, \sigma^2) \right\} \\
+    &= \arg \max_{\beta \in \mathcal{R}^p} \left\{ \log \prod_{i=1}^n p(y_i \mid \beta, \sigma^2) \right\} \\
+    &= \arg \max_{\beta \in \mathcal{R}^p} \left\{ -\frac{1}{2\sigma^2} \sum_{i=1}^n (y_i-x_i \beta)^2 \right\} \\
+    &= \arg \max_{\beta \in \mathcal{R}^p} \left\{ -\frac{1}{2\sigma^2} (Y-X\beta)^T(Y-X\beta) \right\} \\
+    &= \arg \min_{\beta \in \mathcal{R}^p} \left\{ (Y-X\beta)^T(Y-X\beta) \right\} 
+\end{align*}
+
+\textbf{Method of moments}
+Denote $X= (x_1,\dots,x_j,\dots,x_p)$, where $x_j$ is the $j$th column of $X$. The sample covariance of $\epsilon$ and each column of $X$ is zero, that is, $\forall j=1,\dots,p$
+\begin{align*}
+    0 &= \frac{1}{n-1} \sum_{i=1}^n (e_i - \bar{e})(x_{ij}-\bar{x}_j) \\
+    0 &= \sum_{i=1}^n e_i x_{ij} - \bar{e}\sum_{i=1}^n x_{ij} - \sum_{i=1}^n e_i \bar{x}_j + n \bar{e}\bar{x}_j \\
+    &= \sum_{i=1}^n e_i x_{ij} - n\bar{e}\bar{x}_j
+\end{align*}
+We have $\bar{e} = 0$, therefore, $\forall j=1,\dots,p$,
+$$e^T x_j = 0,$$
+which is 
+$$e^T X = 0.$$
+Then,
+$$(Y-X\hat{\beta})^TX=0,$$
+$$Y^X = \hat{\beta}^TX^TX,$$
+$$X^TY = X^TX\beta.$$
+This is the solution to 
+$$
+\hat{\beta} = \arg \max_{\beta \in \mathcal{R}^p} \left\{ \prod_{i=1}^n p(y_i \mid \beta, \sigma^2) \right\} \, .
+$$
+
+The variance of the estimator is
+\begin{align*}
+    Cov(\hat{\beta}) &= Cov((X^TX)^{-1}X^TY) \\
+    &= (X^TX)^{-1}X^T Cov(Y) ((X^TX)^{-1}X^T)^T \\
+    &= (X^TX)^{-1}X^T (\sigma^2 I) X (X^TX)^{-1} \\
+     &= \sigma^2 (X^TX)^{-1}
+\end{align*}
+
+\bigskip
+
+\item As mentioned above, the estimator in the previous part corresponds to the assumption that $y \sim N(X \beta, \sigma^2 I)$.  What happens if we instead postulate that $y \sim N(X \beta, \Sigma)$, where $\Sigma$ is an arbitrary known covariance matrix, not necessarily proportional to the identity?  What is the maximum likelihood estimate for $\beta$ now, and what is the variance of this estimator? 
+\bigskip
+\begin{align*}
+    \hat{\beta} &= \arg \max_{\beta \in \mathcal{R}^p} \left\{ \prod_{i=1}^n p(y_i \mid \beta, \sigma^2) \right\} \\
+    &= \arg \max_{\beta \in \mathcal{R}^p} \left\{ \log \prod_{i=1}^n p(y_i \mid \beta, \sigma^2) \right\} \\
+    &= \arg \max_{\beta \in \mathcal{R}^p} \left\{ -\frac{1}{2} (Y-X\beta)^T\Sigma^{-1}(Y-X\beta) \right\} \\
+    &= \arg \min_{\beta \in \mathcal{R}^p} \left\{ (Y-X\beta)^T\Sigma^{-1}(Y-X\beta) \right\} \\
+    &= \arg \min_{\beta \in \mathcal{R}^p} \left\{ \beta^TX^T\Sigma^{-1}X\beta - 2\beta^TX^T\Sigma^{-1}Y \right\} 
+\end{align*}
+Then,
+\begin{align*}
+    2X^T\Sigma^{-1}X\hat{\beta} - 2X^T\Sigma^{-1}Y = 0 \\
+    \hat{\beta} = (X^T\Sigma^{-1}X)^{-1} X^T\Sigma^{-1}Y
+\end{align*}
+The variance is
+\begin{align*}
+    Cov(\hat{\beta}) &= (X^T\Sigma^{-1}X)^{-1} X^T\Sigma^{-1} Cov(Y) ((X^T\Sigma^{-1}X)^{-1} X^T\Sigma^{-1})^T \\
+    &= (X^T\Sigma^{-1}X)^{-1} X^T\Sigma^{-1} \Sigma \Sigma^{-1}X (X^T\Sigma^{-1}X)^{-1} \\
+    &= (X^T\Sigma^{-1}X)^{-1}
+\end{align*}
+
 
 \item Show that in the special case where $\Sigma$ is a diagonal matrix, i.e. $\Sigma = \mbox{diag}(\sigma_1^2, \sigma_2^2, \ldots, \sigma_n^2)$, that the MLE is the familiar \emph{weighted least squares} estimator.  That is, show that $\hat \beta$ is the solution to the following linear system of $P$ equations in $P$ unknowns:
 $$
 (X^T W X) \hat \beta = X^T W y \, ,
 $$
 where $W$ is a diagonal matrix of weights that you should relate to the $\sigma_i^2$'s.  
+
+\bigskip
+\begin{align*}
+    \hat{\beta} &= \arg \max_{\beta \in \mathcal{R}^p} \left\{ \prod_{i=1}^n p(y_i \mid \beta, \sigma^2) \right\} \\
+    &= \arg \min_{\beta \in \mathcal{R}^p} \left\{ (Y-X\beta)^T\Sigma^{-1}(Y-X\beta) \right\} \\
+    &= \arg \min_{\beta \in \mathcal{R}^p} \left\{ \frac{1}{\sigma_i^2} (y_i - x_i^T\beta)^2 \right\}
+\end{align*}
+As is written in (B)
+\begin{align*}
+    \hat{\beta} 
+    &= \arg \min_{\beta \in \mathcal{R}^p} \left\{ \beta^TX^T\Sigma^{-1}X\beta - 2\beta^TX^T\Sigma^{-1}Y \right\} 
+\end{align*}
+\begin{align*}
+    2X^T\Sigma^{-1}X\hat{\beta} - 2X^T\Sigma^{-1}Y = 0 \\
+    X^T\Sigma^{-1}X\hat{\beta} = X^T\Sigma^{-1}Y \\
+    (X^T W X) \hat \beta = X^T W Y
+\end{align*}
+where $W=diag(1/\sigma_1^2, \dots, 1/\sigma_n^2)$.
 
 \end{enumerate}
 
@@ -578,9 +661,61 @@ One way to calculate $\hat{\beta}$ is to: (1) recognize that, trivially, the sol
 
 Numerically speaking, is the inversion method the fastest and most stable way to actually solve the above linear system?  Do some independent sleuthing on this question.\footnote{\url{https://www.google.com/search?q=Why+Shouldn\%27t+I+Invert+That+Matrix}}.   Summarize what you find, and provide pseudo-code for at least one alternate method based on matrix factorizations---call it ``your method'' for short.\footnote{Our linear system is not a special flower; whatever you discover about general linear systems should apply here.}
 
+\bigskip
+
+\jie
+Is the inversion method the fastest and most stable way to actually solve the above linear system?
+
+Based on the blog, the total complexity of solving a linear system of equations using the LU decomposition is
+$\frac{2}{3}n^3 + 2n^2$, while using the inverse of the matrix requires $2n^3$ flops.
+
+Solving a system of linear equations by performing a matrix inversion is typically less accurate than solving the system directly. The matrix inversion approach can have significantly worse backward error than directly solving for $x$ if the matrix $A$ is ill-conditioned.
+
+\smallskip
+We can use LU decomposition to make the calculation of matrix inverse easier. Denote the matrix to be inverse as $A$. LU decomposition is decomposing
+$$A = LU,$$
+where $L$ is a lower triangular matrix and $U$ is an upper triangular matrix.
+If we want to solve $$Ax = LUx =b$$
+\begin{enumerate}
+    \item Use forward substitution to solve $Ly = b$.
+    \item Use backward substitution to solve $Ux = y$.
+\end{enumerate}
+
+\begin{algorithm}[H]
+\caption{Solve weighted least squares estimator using LU decomposition}\label{alg:my_inverse}
+\begin{algorithmic}
+\State Let $A = X^T W X$, $b= X^T W y$.
+\State Use forward substitution to solve $Ly = b$.
+\State Use backward substitution to solve $Ux = y$. Then $x$ is what we want for $\hat{\beta}$.
+\end{algorithmic}
+\end{algorithm}
+
+\bigskip 
+
 \item Code up functions that implement both the inversion method and your method for an arbitrary $X$, $y$, and set of weights $W$.  Obviously you shouldn't write your own linear algebra routines for doing things like multiplying or decomposing matrices.  But don't use a direct model-fitting function like R's ``lm'' either.   Your actual code should look a lot like the pseudo-code you wrote for the previous part.\footnote{Be attentive to how you multiply a matrix by a diagonal matrix, or you'll waste a lot of time multiplying stuff by zero.}
 
 Now simulate some silly data from the linear model for a range of values of $N$ and $P$.  (Feel free to assume that the weights $w_i$ are all 1.)  It doesn't matter how you do this---e.g.~everything can be Gaussian if you want.  (We're not concerned with statistical principles in this problem, just with algorithms, and using least squares is a pretty terrible idea for enormous linear models, anyway.)  Just make sure that you explore values of $P$ up into the thousands, and that $N > P$.  Benchmark the performance of the inversion solver and your solver across a range of scenarios.\footnote{In R, a simple library for this purpose is microbenchmark.}
+
+\bigskip
+
+\jie
+Generate data
+$$W = I$$
+$$X_{ij} \sim N(0,1)$$
+$$\beta_j \sim N(0,1)$$
+We have the results in Table \ref{tab:performance}. Unfortunately, my computer memory is exhausted when running inv() with $P=900, N=1000$. And the solve() function in R is super smart. But we can still tell that the inv() function in R which uses the basic matrix inverse takes much longer time than our method using LU decomposition.
+\begin{table}[]
+    \centering
+    \begin{tabular}{c|c|c|c|c}
+         N & P & solve() (s) & LU decomp (s) & inv() \\ \hline
+         10  & 5 & 31.9226 $\times 10^{-6}$ & 34.0464 $\times 10^{-6}$ & 268.2630 $\times 10^{-6}$\\
+         60  & 50 & 333.4448 $\times 10^{-6}$ & 6834.8066 $\times 10^{-6}$ & 91702.9042 $\times 10^{-6}$\\
+         200  & 100 &  4.413174 $\times 10^{-3}$ & 53.850031 $\times 10^{-3}$ &2074.851510 $\times 10^{-3}$ \\
+         1000  & 900 & 1.15714& 35.65266\\
+    \end{tabular}
+    \caption{Performance}
+    \label{tab:performance}
+\end{table}
 
 \end{enumerate}
 
