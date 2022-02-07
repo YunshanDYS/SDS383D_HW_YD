@@ -331,7 +331,7 @@ Based on the conclusion in (C) and the uniqueness of the MGF, therefore, $x = Lz
 \bigskip
 
 \jie
-If $x \sim N(\mu,\Sigma)$, $\Sigma$ is the covariance matrix which is positive-semi-definite, then it can be decomposed as $\Sigma = AA^T$. The MGF of $x$ is
+If $x \sim N(\mu,\Sigma)$, $\Sigma$ is the covariance matrix which is positive-definite, then it can be decomposed as $\Sigma = AA^T$ (Use spectrum decomposition and sqruare root the eigenvalues or Cholesky decomposition). The MGF of $x$ is
 \begin{align*}
 	E\{ exp(t^T x) \} &= exp\{ \half t^T \Sigma t+t^T\mu \} \\
 	&= exp\{ \half t^T AA^T t+t^T\mu \} 
@@ -525,7 +525,8 @@ The log pdf is
 Therefore,
 \begin{align*}
     p(x_1|x_2) &\equiv N(\Omega_{11}^{-1} (\Omega_{11} \mu_1 + \Omega_{12} \mu_2 - \Omega_{12} x_2), \Omega_{11}^{-1}) \\
-    &\equiv N(\mu_1 + \Omega_{11}^{-1}\Omega_{12} \mu_2 - \Omega_{11}^{-1}\Omega_{12} x_2, \Omega_{11}^{-1}) 
+    &\equiv N(\mu_1 + \Omega_{11}^{-1}\Omega_{12} \mu_2 - \Omega_{11}^{-1}\Omega_{12} x_2, \Omega_{11}^{-1}) \\
+    &\equiv N(\mu_1 - \Sigma_{12} \Sigma_{22}^{-1} (x_2 - \mu_2), \Sigma_{11} - \Sigma_{12}\Sigma_{22}^{-1}\Sigma_{12}) 
 \end{align*}
 
 
