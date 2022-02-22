@@ -1,11 +1,28 @@
-  \documentclass{mynotes}
-
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
 %\geometry{showframe}% for debugging purposes -- displays the margins
 
 \newcommand{\E}{\mbox{E}}
 \newcommand{\MSE}{\mbox{MSE}}
 \newcommand{\var}{\mbox{var}}
 \newcommand{\by}{\textbf{y}}
+
+%% ys
+\usepackage[shortlabels]{enumitem}
+\usepackage{geometry}
+\usepackage{bm}
+\usepackage{amssymb}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{xcolor}
+\usepackage{listings}
+\geometry{a4paper,scale=0.75}
+\newcommand{\jie}{$\star$ }
+\newcommand{\bx}{\bm{x}}
+\newcommand{\iid}{\overset{\text{iid}}{\sim}}
+\newcommand{\half}{\frac{1}{2}}
+\newcommand{\ynote}[1]{\color{red} #1 \color{black}}
+%% ys
 
 \usepackage{amsmath,amssymb,amsfonts,amsthm} % amsmath package, useful for mathematical formulas
 %\usepackage[garamond]{mathdesign}
@@ -21,7 +38,7 @@
 \setkeys{Gin}{width=\linewidth,totalheight=\textheight,keepaspectratio}
 \graphicspath{{graphics/}}
 
-\title[Exercises 3 $\cdot$ SDS 383D]{Exercises 3: Bayes and the Gaussian linear model}
+\title{Exercises 3 $\cdot$ SDS 383D \\ Exercises 3: Bayes and the Gaussian linear model}
 %\author[ ]{ }
 \date{}  % if the \date{} command is left out, the current date will be used
 
@@ -205,14 +222,14 @@ The items below follow a parallel path to the derivations you did for the Gaussi
 The file ``greenbuildings.csv''  contains data on over 7,000 commercial rental properties from across the United States.  Of these, 685 properties have been awarded either LEED or EnergyStar certification as a green building.  The basic idea is that a commercial property can receive a green certification if its energy efficiency, carbon footprint, site selection, and building materials meet certain environmental benchmarks.  A group of real estate economists constructed the data set in the following way.  They first sampled 679 green-certified buildings listed on the LEED or EnergyStar websites, and cross-referenced those buildings with data from the CoStar Group (\url{www.costar.com}), a standard data vendor in commercial real estate.  In order to provide a control population, each of these 685 buildings was matched to a cluster of nearby commercial buildings in the CoStar database.  Each small cluster contains one green-certified building, and all non-rated buildings within a quarter-mile radius of the certified building.  On average, each of the 679 clusters contains roughly 12 buildings.
 
 For our purposes, the variables we'll use are:
-\begin{compactitem}
+\begin{enumerate}
 \item Rent: rent in dollars per square foot per year (the standard measure in commercial real estate)  
 \item leasing rate: what percentage (0-100 scale) of the building is actually leased to a tenant
 \item green rating: 0/1, whether the building has a green certification  
 \item CityMarketRent: an index of commercial real estate prices for the market in which the building is located  
 \item age: age of the building in years
 \item class a, class b: indicators for whether the building is class A or class B (if both are 0, the building is class C)  
-\end{compactitem}
+\end{enumerate}
 
 To build a model here, first define a new response variable, revenue per square foot, defined as the Rent divided by the leasing rate, times 100.  This represents how much actual revenue the property brings in per square foot.  This will be your response variable.  As predictors, using green rating, City Market Rent, age, class a, and class b (and an intercept, of course).  Fit the (homoskedastic) Bayesian linear model to this data set, choosing $\Lambda = I$ and something diagonal and pretty vague for the prior precision matrix $K = \mbox{diag}(\kappa_1, \kappa_2)$.
 
