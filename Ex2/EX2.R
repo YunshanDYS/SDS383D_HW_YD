@@ -147,6 +147,7 @@ beta_glm <- matrix(est_glm,ncol=1)
 theta_glm <- X%*%beta_glm
 ll_glm <- loglike(y,theta_glm)
 
+beta
 # difference between glm and newton
 beta_glm - beta
 
@@ -161,12 +162,14 @@ legend("bottomright", legend=c("glm", "line search","fixed step","Newton"),
        col=c("red","black", "blue","green"), lty=1:2, cex=0.8)
 dev.off()
 
+ll_iter
+
 # sqrt of diag of inverse negative Hessian
 sqrt(diag(solve(-H)))
 std_glm <- summary(fit)$coefficients[,2]
 # std error in glm()
 std_glm
-
+std_glm - sqrt(diag(solve(-H)))
 
 
 
