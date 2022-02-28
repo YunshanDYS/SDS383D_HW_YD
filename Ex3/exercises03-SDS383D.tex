@@ -135,6 +135,20 @@ p(\theta) \propto \left(1+ \frac{1}{\nu} \cdot \frac{(x - m)^2}{s^2}  \right)^{-
 $$
 with center $m$,  scale $s$, and degrees of freedom $\nu$, where you fill in the blank for $m$, $s^2$, and $\nu$ in terms of the four parameters of the normal-gamma family.  Note: you did a problem just like this on a previous exercise!  This shouldn't be a lengthy re-derivation.
 
+\bigskip
+\jie
+$$\theta|w \sim N(m,(w\kappa)^{-1}),$$
+$$w \sim Ga(\frac{d}{2}, \frac{\eta}{2}).$$
+The marginal distribution of $\theta$ is
+\begin{align*}
+    p(\theta) &= \int p(\theta|w) p(w) dw \\
+    &\propto \int \omega^{(d+1)/{2} - 1} \exp \left\{ - \omega \cdot \frac{\kappa (\theta - \mu)^2}{2}  \right\} \cdot \exp\left\{ -  \omega \cdot \frac{\eta}{2}  \right\} d\omega\\
+    &\propto \int \omega^{(d+1)/{2} - 1} \exp \left\{ - \omega \cdot (\frac{\eta}{2} + \frac{\kappa (\theta - \mu)^2}{2} ) \right\} d\omega \\
+    &\propto \int \frac{(\frac{\eta}{2} + \frac{\kappa (\theta - \mu)^2}{2} )^{\frac{d+1}{2}} }{\Gamma(\frac{d+1}{2})} w^{\frac{d+1}{2} -1} \exp \{- \omega \cdot (\frac{\eta}{2} + \frac{\kappa (\theta - \mu)^2}{2} ) \} dw \cdot \frac{\Gamma(\frac{d+1}{2})}{(\frac{\eta}{2} + \frac{\kappa (\theta - \mu)^2}{2} )^{\frac{d+1}{2}} } \\
+    &\propto [\eta+\kappa (\theta - \mu)^2]^{-\frac{d+1}{2}} \\
+    &\propto [1+\frac{1}{d}(\theta-\mu)^2/(\frac{\eta}{\kappa d})]^{-\frac{d+1}{2}} \\
+    &\equiv t(d,\mu,(\frac{\eta}{\kappa d})^{1/2}).
+\end{align*}
 
 \item Assume the normal sampling model in Equation \ref{eqn:normal_model} and the normal-gamma prior in Equation \ref{eqn:normal_gamma_prior1}.  Calculate the joint posterior density $p(\theta, \omega \mid \textbf{y})$, up to constant factors not depending on $\omega$ or $\theta$.  Show that this is also a normal/gamma prior in the same form as above:
 \begin{equation}
@@ -160,16 +174,59 @@ where $S_y = \sum_{i=1}^n (y_i - \bar{y})^2$ is the sum of squares for the $\by$
 
 Take care in ignoring constants here: some term that is constant in $\theta$ may not be constant in $\omega$, and vice versa.  You're focusing on the joint posterior, so you can't ignore anything that has a $\theta$ or $\omega$ in it.
 
+\bigskip
+\jie
+\begin{align*}
+    p(\theta,\omega|y) &\propto p(y|\theta,\omega) p(\theta,\omega) \\
+    &\propto (\omega)^{\frac{n}{2}} \exp\left\{ -\frac{\omega}{2} \sum_i [S_y + n(\theta - \bar{y})^2] \right\} \cdot \omega^{\frac{d+1}{2}-1} \exp \left\{ -\omega \frac{\kappa (\theta-\mu)^2}{2} \right\} \cdot \exp \left\{ -\omega \frac{\eta}{2} \right\} \\
+    & = \omega^{\frac{d+n+1}{2}-1} \exp\left\{ -\frac{\omega}{2} [n\theta^2 - 2n \bar{y}\theta + n\bar{y}^2 + \kappa \theta^2 - 2\kappa \mu \theta + \kappa \mu^2 + \eta + S_y] \right\} \\
+    & = \omega^{\frac{d+n+1}{2}-1} \exp\left\{ -\frac{\omega}{2} [(n+\kappa)(\theta - \frac{n\bar{y} + \kappa \mu}{n+\kappa})^2 - \frac{(n\bar{y} + \kappa \mu)^2}{n+\kappa} + \eta + S_y +n\bar{y}^2 + \kappa \mu^2] \right\}
+\end{align*}
+Therefore,
+\begin{itemize}
+\item $\mu \longrightarrow \mu^\star =  \frac{n\bar{y} + \kappa \mu}{n+\kappa}$
+\item $\kappa \longrightarrow \kappa^\star = n + \kappa$
+\item $d \longrightarrow d^{\star} =  d+n$
+\item $\eta \longrightarrow \eta^\star = \eta + S_y +n\bar{y}^2 + \kappa \mu^2 - \frac{(n\bar{y} + \kappa \mu)^2}{n+\kappa} = \eta +\sum_i y_i^2 + \kappa \mu^2 - \frac{(n\bar{y} + \kappa \mu)^2}{n+\kappa}$
+\end{itemize}
 
 \item From the joint posterior you just derived, what is the conditional posterior distribution $p(\theta \mid \by, \omega)$?  Note: this should require no calculation---you should just be able to read it off directly from the joint distribution, since you took care to set up things so that the joint posterior was in the same form as Equation \ref{eqn:normal_gamma_prior1}.
 
+\bigskip
+\jie
+$$p(\theta|\omega,y) = N(\mu^*, (\omega\kappa^*)^{-1}) = N(\frac{n\bar{y} + \kappa \mu}{n+\kappa}, (\omega(n + \kappa))^{-1})$$
+\bigskip
+
 \item From the joint posterior you calculated in (A), what is the marginal posterior distribution $p(\omega \mid \by)$?  Unlike the previous question, this one doesn't come 100\% for free---you have to integrate over $\theta$.  But it shouldn't be too hard, since you can ignore constants not depending on $\omega$ in calculating this integral.
 
+\bigskip
+\jie
+$$p(\theta, \omega \mid \by) \propto \omega^{(d^\star+1)/2 - 1} \exp \left\{ - \omega \cdot \frac{\kappa^\star (\theta - \mu^\star)^2}{2}  \right\}
+\cdot \exp\left\{ -  \omega \cdot \frac{\eta^\star}{2}  \right\} $$
+Then,
+\begin{align*}
+    p(\omega \mid \by) &\propto \int \omega^{(d^\star+1)/2 - 1} \exp \left\{ - \omega \cdot \frac{\kappa^\star (\theta - \mu^\star)^2}{2}  \right\}
+\cdot \exp\left\{ -  \omega \cdot \frac{\eta^\star}{2}  \right\} d\theta \\
+&= \omega^{(d^\star+1)/2 - 1} \cdot \exp\left\{ -  \omega \cdot \frac{\eta^\star}{2}  \right\} \int \exp \left\{ - \omega \cdot \frac{\kappa^\star (\theta - \mu^\star)^2}{2}  \right\} d\theta \\
+&\propto \omega^{(d^\star+1)/2 - 1} \cdot \exp\left\{ -  \omega \cdot \frac{\eta^\star}{2}  \right\} (\kappa^* \omega)^{-\half} \\
+&\propto \omega^{d^\star/2 - 1}\cdot \exp\left\{ -  \omega \cdot \frac{\eta^\star}{2}  \right\} \\
+&= Gamma(\frac{d^\star}{2},\frac{\eta^\star}{2})
+\end{align*}
+
+\bigskip
+
 \item Show that the marginal posterior $p(\theta \mid \by)$ takes the form of a centered, scaled $t$ distribution and express the parameters of this $t$ distribution in terms of the four parameters of the normal-gamma posterior for $(\theta, \omega)$.  Note: since you've set up the normal-gamma family in this careful conjugate form, this should require no extra work.  It's just part (A), except for the posterior rather than the prior.
+$$ p(\theta|y) = t(d^*,\mu^*,(\frac{\eta^*}{\kappa^* d^*})^{1/2})$$
 
 \item True or false: in the limit as the prior parameters $\kappa$, $d$, and $\eta$ approach zero, the priors $p(\theta)$ and $p(\omega)$ are valid probability distributions.  (Remember that a valid probability distribution must integrate to 1 (or something finite, so that it can normalized to integrate to 1) over its domain.)
 
+\bigskip
+\jie FALSE. Because we know the marginal prior of $\theta$, t distribution, is undefined.
+
 \item True or false: in the limit as the prior parameters $\kappa$, $d$, and $\eta$ approach zero, the posteriors $p(\theta \mid \by)$ and $p(\omega \mid \by)$ are valid probability distributions.
+
+\bigskip
+\jie TRUE. We call tell from the result in (C) that when the hyper parameters go to 0, the conditional posteriors are well defined.
 
 \item Your result in (E) implies that a Bayesian credible interval for $\theta$ takes the form
 $$
@@ -178,6 +235,24 @@ $$
 where $m$ and $s$ are the posterior center and scale parameters from (E), and $t^\star$ is the appropriate critical value of the t distribution for your coverage level and degrees of freedom (e.g.~it would be 1.96 for a 95\% interval under the normal distribution).
 
 True or false: In the limit as the prior parameters $\kappa$, $d$, and $\eta$ approach zero, the Bayesian credible interval for $\theta$ becomes identical to the classical (frequentist) confidence interval for $\theta$ at the same confidence level.
+
+$$
+\theta \in \mu^* \pm t^{\star} \cdot (\frac{\eta^*}{\kappa^* d^*})^{1/2} \, ,
+$$
+
+\begin{itemize}
+\item $\mu^\star =  \frac{n\bar{y} + \kappa \mu}{n+\kappa} \rightarrow \bar{y}$
+\item $\kappa^\star = n + \kappa \rightarrow n $
+\item $d^{\star} =  d+n \rightarrow n$
+\item $\eta^\star = \eta + S_y +n\bar{y}^2 + \kappa \mu^2 - \frac{(n\bar{y} + \kappa \mu)^2}{n+\kappa} = \eta +\sum_i y_i^2 - \frac{(n\bar{y} + \kappa \mu)^2}{n+\kappa} \rightarrow S_y$
+\end{itemize}
+
+$$
+\theta \in \bar{y} \pm t^{\star} \cdot \frac{\sqrt{S_y}}{n} \, ,
+$$
+The frequentist confidence interval
+$$\theta \in \bar{y} \pm t^{\star} \cdot \frac{\sqrt{\frac{1}{n-1}S_y}}{\sqrt{n}}.$$
+Identical? (Almost).
 
 \end{enumerate}
 
@@ -209,9 +284,37 @@ The items below follow a parallel path to the derivations you did for the Gaussi
 
 \item Derive the conditional posterior $p(\beta \mid \by, \omega)$.
 
+\begin{align*}
+    p(\beta,w \mid y) &\propto w^{\frac{n}{2}} |\Lambda|^{\half} \exp\{-\frac{w}{2}(y-X\beta)^T\Lambda(y-X\beta) \} \\& \cdot w^{\frac{p}{2}} |K|^{\half} \exp\{-\frac{w}{2} (\beta - m)^T K(\beta-m) \} \cdot w^{\frac{d}{2}-1} \exp\{-\frac{\eta}{2}w\}
+\end{align*}
+\begin{align*}
+    p(\beta \mid y,w) &\propto \exp \{-\frac{w}{2} [\beta^TX^T\Lambda X \beta - 2\beta^T X^T \Lambda y + \beta^T K \beta - \beta^T K m]\} \\
+    &\propto \exp \{-\frac{w}{2} [\beta^T (X^T\Lambda X + K) \beta - 2\beta^T(X^T \Lambda y + K m)]\} \\
+    &= N(\mu_\beta, w^{-1}V_\beta),
+\end{align*}
+where $V_\beta = (X^T \Lambda X + K)^{-1}$, $\mu_\beta = V_\beta (X^T \Lambda y + Km)$.
+
 \item Derive the marginal posterior $p(\omega \mid \by)$.
 
+\begin{align*}
+    p(w \mid y) &\propto w^{\frac{n+p+d}{2} -1} \exp\{-\frac{\eta}{2}w\} \cdot \exp\{-\frac{w}{2}[y^T\Gamma y + m^T K m]\} \\&\cdot \int \exp \{ -\frac{w}{2} [\beta^TX^T\Lambda X \beta - 2\beta^T X^T \Lambda y + \beta^T K \beta - \beta^T K m]  \} d\beta \\
+    &\propto w^{\frac{n+p+d}{2} -1} \exp\{-\frac{\eta}{2}w\} \cdot \exp\{-\frac{w}{2}[y^T\Gamma y + m^T K m]\} \cdot w^{-\frac{p}{2}} \exp\{\frac{w}{2} \mu_\beta^T V_\beta^{-1} \mu_\beta \} \\
+    &\propto w^{\frac{n}{2}+\frac{d}{2} -1} \exp\{ -w \half[\eta + y^T\Gamma y + m^T K m - \mu_\beta^T V_\beta^{-1} \mu_\beta ] \} \\
+    &= Ga(\frac{d_w}{2}, \frac{\eta_w}{2}),
+\end{align*}
+where $d_w = n+ d$, $\eta_w = \eta + y^T\Lambda y + m^T K m - \mu_\beta^T V_\beta^{-1} \mu_\beta $.
+
 \item Putting these together, derive the marginal posterior $p(\beta \mid \by)$.
+
+\begin{align*}
+    p(\beta \mid y) &\propto \int p(\beta \mid w,y) p(w \mid y) dw \\
+    &\propto \int w^{\frac{p}{2}} |V_\beta|^{\half} \exp\{-\frac{w}{2} (\beta-\mu_\beta)^T V_\beta^{-1} (\beta-\mu_\beta) \} \cdot w^{\frac{d_w}{2}-1} \exp\{-w\frac{\eta_w}{2}\} dw \\
+    & \propto \int w^{\frac{p}{2}+\frac{d_w}{2} - 1} \exp\{-w \half[\eta_w + (\beta-\mu_\beta)^T V_\beta^{-1} (\beta-\mu_\beta)]\} dw \\
+    &= \frac{\Gamma(\frac{p}{2} + \frac{d_w}{2})}{\{\half[\eta_w + (\beta-\mu_\beta)^T V_\beta^{-1} (\beta-\mu_\beta)] \}^{\frac{p}{2} + \frac{d_w}{2}}} \\
+    &\propto [\eta_w + (\beta-\mu_\beta)^T V_\beta^{-1} (\beta-\mu_\beta)] \}^{-\frac{(p+d_w)}{2}} \\
+    &\propto [1 + \frac{1}{d_w}(\beta-\mu_\beta)^T ((\frac{\eta_w}{d_w})V_\beta)^{-1} (\beta-\mu_\beta)] \}^{-\frac{(p+d_w)}{2}} \\
+    &= t(df=d_w, \mu_\beta, (\frac{\eta_w}{d_w})V_\beta )
+\end{align*}
 
 \end{enumerate}
 
@@ -235,8 +338,21 @@ To build a model here, first define a new response variable, revenue per square 
 
 What is a 95\% Bayesian credible interval for the coefficient on the green rating variable?  How does your result compare to the classical 95\% confidence interval, e.g. from lm in R?  What does a histogram of the model residuals reveal?  (Here you can define the residual vector as $y - X \hat{\beta}$, where $\hat{\beta}$ is the posterior mean.)  Are you happy with your model?  Why or why not?  
 
+\bigskip
+\jie
+The credible interval for coefficient on the green rating variable
+$$(\hat{\beta}_2 - t_{d_w,0.025}\hat{\sigma}_\beta,\hat{\beta}_2 + t_{d_w,0.025}\hat{\sigma}_\beta).$$
+The Bayesian credible interval is $( 0.5451348 , 2.299273 )$, and the confidence interval from the lm() function is $(0.5447429, 2.299667)$, which are almost the same.
 
+Figure \ref{fig:hist_res} shows the histogram of the model residual.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Ex3/figures/res.jpeg}
+    \caption{The histogram of the model residual.}
+    \label{fig:hist_res}
+\end{figure}
 
+However, under this model the some of the errors of the estimates are large, which is not desirable. And the assumption of the homogeneous variance might not be true. Additionally, from the plot we can tell that the normal assumption is not the best choice of the dataset.  
 
 \subsection{A heavy-tailed error model}
 
