@@ -97,7 +97,15 @@ i.e. $\hat{\theta}_{\mathrm{MLE}} = (\bar{y}_1, \ldots, \bar{y}_P)$.
 \bigskip
 
 \item Make a plot that illustrates the following fact: extreme school-level averages $\bar{y}_i$ (both high and low) tend to be at schools where fewer students were sampled.  Explain briefly why this would be.
-
+\bigskip
+\jie
+Figure \ref{fig:bary_n} shows that extreme school-level averages have fewer students. The reason for this might be those school with high averages are harder to get into and schools with extreme low averages cannot recruit as much student as the ones are better.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Ex4/figures/bary_n.jpeg}
+    \caption{Average score of each school v.s. number of students.}
+    \label{fig:bary_n}
+\end{figure}
 
 \item Fit the following two-level hierarchical model to these data via Gibbs sampling:
 \begin{eqnarray*}
