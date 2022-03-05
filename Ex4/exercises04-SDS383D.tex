@@ -1,11 +1,28 @@
-  \documentclass{mynotes}
-
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
 %\geometry{showframe}% for debugging purposes -- displays the margins
 
 \newcommand{\E}{\mbox{E}}
 \newcommand{\MSE}{\mbox{MSE}}
 \newcommand{\var}{\mbox{var}}
-\newcommand{\bx}{\mathbf{x}}
+\newcommand{\by}{\textbf{y}}
+
+%% ys
+\usepackage[shortlabels]{enumitem}
+\usepackage{geometry}
+\usepackage{bm}
+\usepackage{amssymb}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{xcolor}
+\usepackage{listings}
+\geometry{a4paper,scale=0.75}
+\newcommand{\jie}{$\star$ }
+\newcommand{\bx}{\bm{x}}
+\newcommand{\iid}{\overset{\text{iid}}{\sim}}
+\newcommand{\half}{\frac{1}{2}}
+\newcommand{\ynote}[1]{\color{red} #1 \color{black}}
+%% ys
 
 \usepackage{amsmath}
 %\usepackage[garamond]{mathdesign}
@@ -16,8 +33,8 @@
 \setkeys{Gin}{width=\linewidth,totalheight=\textheight,keepaspectratio}
 \graphicspath{{graphics/}}
 
-\title[Exercises 4 $\cdot$ SDS 383D]{Exercises 4: Intro to Hierarchical Models}
-%\author[ ]{ }
+\title{Exercises 4 $\cdot$ SDS 383D \\ Exercises 4: Intro to Hierarchical Models}
+\author{Yunshan Duan }
 \date{}  % if the \date{} command is left out, the current date will be used
 
 % The following package makes prettier tables.  We're all about the bling!
@@ -67,7 +84,21 @@ Let $\theta_i$ be the underlying mean test score for school $i$, and let $y_{ij}
 
 \begin{enumerate}[(A)]
 \item Show (somewhat trivially) that the maximum likelihood estimate for $\theta$ is just the vector of sample means: $\hat{\theta}_{\mathrm{MLE}} = (\bar{y}_1, \ldots, \bar{y}_P)$.  
+
+\bigskip
+\jie
+The likelihood is
+$$p(y \mid \theta) \propto \prod_{i=1}^P \prod_{j=1}^{N_i} \exp\{-\frac{1}{2} (y_{ij} - \theta_i)^2\}.$$
+Then,
+$$\frac{\partial}{\partial \theta_i} \log L = \sum_{j=1}^{N_i} (y_{ij} - \theta_i).$$
+Therefore, the MLE 
+$$\hat{\theta}_i = \frac{1}{N_i} \sum_{j=1}^{N_i} y_{ij} = \bar{y}_i,$$
+i.e. $\hat{\theta}_{\mathrm{MLE}} = (\bar{y}_1, \ldots, \bar{y}_P)$.
+\bigskip
+
 \item Make a plot that illustrates the following fact: extreme school-level averages $\bar{y}_i$ (both high and low) tend to be at schools where fewer students were sampled.  Explain briefly why this would be.
+
+
 \item Fit the following two-level hierarchical model to these data via Gibbs sampling:
 \begin{eqnarray*}
 (y_{ij} \mid \theta_i, \sigma^2) &\sim& \mbox{N}(\theta_i, \sigma^2) \\
