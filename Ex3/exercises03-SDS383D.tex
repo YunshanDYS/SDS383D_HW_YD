@@ -372,7 +372,18 @@ where $h$ is a fixed hyperparameter.
 
 \item Under this model, what is the implied conditional distribution $p(y_i \mid X, \beta, \omega)$?  Notice that $\lambda_i$ has been marginalized out.  This should look familiar.
 
+\begin{align*}
+    p(y_i \mid X,\beta,w) &\propto \int (w\lambda_i)^\half \exp\{-\frac{w\lambda_i}{2} (y_i - X_i\beta)^2\} \lambda_i^{\frac{h}{2}-1} \exp\{-\frac{h}{2}\lambda_i\}  d\lambda_i \\
+    &= \{\half [w(y_i-X_i\beta)^2 + h] \}^{-\frac{h+1}{2}} \\
+    &= t(h,X_i\beta,w^{-1})
+\end{align*}
+
 \item What is the conditional posterior distribution $p(\lambda_i \mid \by, \beta, \omega)$?
+
+\begin{align*}
+    p(\lambda_i) &\propto (w\lambda_i)^{\half} \exp\{-\frac{w\lambda_i}{2} (y_i - X_i\beta)^2\} \cdot \lambda_i^{\frac{h}{2}-1} \exp\{-\frac{h}{2}\lambda_i\} \\
+    &\propto Ga\left(\frac{h+1}{2}, \half [h + w(y_i - X_i\beta)^2]\right)
+\end{align*}
 
 \item Combining these results with those from the ``Basics'' subsection above, code up a \href{http://en.wikipedia.org/wiki/Gibbs_sampling}{Gibbs sampler} that repeatedly cycles through sampling the following three sets of conditional distributions.
 \begin{itemize}
@@ -383,6 +394,23 @@ where $h$ is a fixed hyperparameter.
 The first two should follow identically from your previous results, except that we are explicitly conditioning on $\Lambda$, which is now a random variable rather than a fixed hyperparameter.  If you cycle through these conditional posterior draws a few thousand times, you will build up a Markov-chain Monte Carlo (MCMC) sample from the joint posterior distribution $p(\beta, \omega, \Lambda \mid \by)$.  Why this technique works for getting posterior draws is the subject of a different course, but hopefully it is reasonably intuitive.
 
 Now use your Gibbs sampler (with at least a few thousand draws) to fit this model to the green buildings data for an appropriate choice of $h$.  Are you happier with the fit?  What's going on here (i.e.~what makes the model more or less appropriate for the data)?\footnote{An interesting plot will be a plot of the posterior mean of $1/\lambda_i$ for each data point.}  How does the 95\% credible interval on each model term compare with the credible intervals you got under the homoskedastic linear model in the previous section?  Are there certain regions of predictor space that seem to be associated with higher variance residuals?  
+
+\bigskip
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Ex3/figures/res_gibbs.jpeg}
+    \caption{The histogram of the model residual with this hierarchical model.}
+    \label{fig:hist_res}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Ex3/figures/lamb_inv.jpeg}
+    \caption{The histogram of $\frac{1}{\lambda_i}$.}
+    \label{fig:hist_res}
+\end{figure}
+
+We can tell for some observations, there are $\lambda_i$ that are very close to zero, while most of the other data points have the $\lambda_i$'s close to 1.
 
 \end{enumerate}
 
