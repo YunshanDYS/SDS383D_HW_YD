@@ -115,6 +115,44 @@ Figure \ref{fig:bary_n} shows that extreme school-level averages have fewer stud
 
 As a starting point, use a flat prior on $\mu$, Jeffreys' prior on $\sigma^2$, and an inverse-gamma(1/2, 1/2) prior on $\tau^2$.  Your Gibbs sampler should cycle between the complete conditional posterior distributions for each of these parameters in turn, as well as $\theta$ (the vector of means).  While you could update each $\theta_i$ individually, I encourage you to think about it as a vector whose conditional distribution is multivariate normal, and whose covariance matrix happens to be diagonal.  This view will generalize more readily to future problems.  
 
+\bigskip
+\jie
+\begin{align*}
+    p(\mu, \sigma^2, \tau^2, \theta \mid y) & \propto \prod_{i=1}^P \left\{ \left[\prod_{j=1}^{N_i} (\sigma^2)^{-\half} \exp\{-\frac{1}{2\sigma^2} (y_{ij} - \theta_i)^2\} \right] \cdot (\tau^2 \sigma^2)^{-\half} \exp\{-\frac{1}{2\tau^2 \sigma^2} (\theta_i -\mu)^2\} \right\} \\
+    &\;\;\;\; \cdot (\sigma^2)^{-1} \cdot (\tau^2)^{-\half-1} \exp\{-\frac{1}{2\tau^2}\} \\
+    &\propto (\sigma^2)^{-\frac{\sum_{i=1}^P N_i + P}{2} - 1} \prod_{i=1}^P \exp \{ -\frac{1}{2\sigma^2} \sum_{j=1}^{N_i} (y_{ij} - \theta_i)^2 - \frac{1}{2\tau^2 \sigma^2} (\theta_i - \mu)^2 \} \\& \;\;\;\; \cdot (\tau^2)^{-\frac{P+1}{2} - 1} \exp\{-\frac{1}{2\tau^2}\}
+\end{align*}
+The full conditionals
+\begin{align*}
+    p(\theta \mid -) &\propto \prod_{i=1}^P \exp \{-\frac{1}{2\sigma^2} \sum_{j=1}^{N_i} (y_{ij}-\theta_i)^2 - \frac{1}{2\tau^2 \sigma^2} (\theta_i - \mu)^2 \} \\
+    &\propto \prod_{i=1}^P \exp \{ -\frac{1}{2} [\frac{N_i}{\sigma^2} \theta_i^2 - 2\frac{N_i \bar{y}_i}{\sigma^2} \theta_i + \frac{1}{\tau^2 \sigma^2} \theta_i^2 - 2\frac{\mu}{\tau^2 \sigma^2} \theta_i] \} \\
+    &\propto \prod_{i=1}^P \exp \{ -\frac{1}{2} [(\frac{N_i}{\sigma^2} + \frac{1}{\tau^2 \sigma^2}) \theta_i^2 - 2(\frac{N_i \bar{y}_i}{\sigma^2} + \frac{\mu}{\tau^2 \sigma^2}) \theta_i] \} \\
+    &= \prod_{i=1}^P N(\tilde{\mu}_i, \tilde{\sigma}_i^2),
+\end{align*}
+where $\tilde{\sigma}_i^2 = (\frac{N_i}{\sigma^2} + \frac{1}{\tau^2 \sigma^2})^{-1}$, $\tilde{\mu}_i  = \tilde{\sigma}_i^2 (\frac{N_i \bar{y}_i}{\sigma^2} + \frac{\mu}{\tau^2 \sigma^2})$.
+Therefore,
+$$p(\theta \mid -) = N(\tilde{\mu}, \tilde{\Sigma}),$$
+where $\tilde{\mu} = (\tilde{\mu}_i, \dots, \tilde{\mu}_P)^T$, $\tilde{\Sigma} = diag(\tilde{\sigma}_1^2, \dots, \tilde{\sigma}_P^2)$.
+\begin{align*}
+    p(\mu \mid -) &\propto \prod_{i=1}^P \exp\{-\frac{1}{2\tau^2 \sigma^2} (\theta_i - \mu)^2\} \\
+    &\propto \exp\{-\frac{1}{2\tau^2 \sigma^2} (P \mu^2 - 2P \bar{\theta} \mu) \} \\
+    &= N(\bar{\theta}, \frac{\tau^2 \sigma^2}{P} )
+\end{align*}
+\begin{align*}
+    p(\sigma^2 \mid -) &\propto (\sigma^2)^{-\frac{\sum_{i=1}^P N_i + P}{2} - 1} \prod_{i=1}^P \exp\{ -\frac{1}{2\sigma^2} \sum_{j=1}^{N_i} (y_{ij} - \theta_i)^2 - \frac{1}{2\tau^2 \sigma^2} (\theta_i -\mu)^2 \} \\
+    &\propto (\sigma^2)^{-\frac{\sum_{i=1}^P N_i + P}{2} - 1} \exp\{ -\frac{1}{\sigma^2} [\half \sum_{i=1}^P \sum_{j=1}^{N_i} (y_{ij} - \theta_i)^2 + \sum_{i=1}^P \frac{1}{2\tau^2} (\theta_i -\mu)^2] \} \\
+    &= \text{Inv-Ga}(a_\sigma, b_\sigma),
+\end{align*}
+where $a_\sigma = \frac{\sum_{i=1}^P N_i + P}{2}$, $b_\sigma = \half \sum_{i=1}^P \sum_{j=1}^{N_i} (y_{ij} - \theta_i)^2 + \sum_{i=1}^P \frac{1}{2\tau^2} (\theta_i -\mu)^2$.
+\begin{align*}
+    p(\tau^2 \mid -) &\propto (\tau^2)^{-\frac{P+1}{2} - 1} \exp\{ -\frac{1}{2\tau^2} - \frac{1}{2\tau^2 \sigma^2} \sum_{i=1}^P (\theta_i -\mu)^2\} \\
+    &\propto (\tau^2)^{-\frac{P+1}{2} - 1} \exp\{ -\frac{1}{\tau^2} [\half + \frac{1}{2 \sigma^2} \sum_{i=1}^P (\theta_i -\mu)^2] \} \\
+    &= \text{Inv-Ga} (a_\tau, b_\tau),
+\end{align*}
+where $a_\tau = \frac{P+1}{2}$, $b_\tau = \half + \frac{1}{2 \sigma^2} \sum_{i=1}^P (\theta_i -\mu)^2$.
+
+
+
 \item Express the conditional posterior mean for $\theta_i$ in the following form:
 $$
 E(\theta_i \mid y, \tau^2, \sigma^2, \mu) = \kappa_i \mu + (1-\kappa_i) \bar{y}_i \, ,
@@ -122,6 +160,19 @@ $$
 i.e. a convex combination of prior mean and data mean.  Here $\kappa_i$ is a \textit{shrinkage coefficient} whose form you should express in terms of the model hyperparameters.  In the extreme case where $\kappa_i$ is 1, then the data ($\bar{y}_i$) are essentially ignored, and the posterior mean is ``shrunk'' all the way back to the prior mean.  In the other extreme where $\kappa_i$ is 0, the prior mean is ignored, and the posterior mean is entirely ``un-shrunk'' compared to the MLE for $\theta_i$.  
 
 For each draw of your MCMC, calculate $\kappa_i$ for each school, and save the posterior draws.  Average these MCMC samples to calculate $\bar{\kappa}_i$, the posterior mean of this shrinkage coefficient.   Plot $\bar{\kappa}_i$ for each school as a function of that school's sample size, and comment on what you see.  
+
+\bigskip
+\jie
+\begin{align*}
+    \tilde{\sigma}_i^2 &= (\frac{N_i}{\sigma^2} + \frac{1}{\tau^2 \sigma^2})^{-1} \\
+    &= \frac{\tau^2 \sigma^2}{\tau^2 N_i + 1}
+\end{align*}
+\begin{align*}
+    \tilde{\mu}_i &= \tilde{\sigma}_i^2 (\frac{N_i \bar{y}_i}{\sigma^2} + \frac{\mu}{\tau^2 \sigma^2}) \\
+    &= \frac{1}{\tau^2 N_i + 1} \mu + \frac{\tau^2 N_i}{\tau^2 N_i + 1} \bar{y}_i \\
+    &= \kappa_i \mu + (1-\kappa_i) \bar{y}_i,
+\end{align*}
+where $\kappa_i = \frac{1}{\tau^2 N_i + 1}$.
 
 \item Observe that an equivalent way to write your model involves the following decomposition:  
 $$
@@ -137,6 +188,18 @@ Conditional on the ``grand mean'' $\mu$, but \emph{marginally} over both $\delta
 \end{compactitem}
 
 Does this make sense to you?  Why or why not?  
+
+\bigskip
+\jie
+\begin{align*}
+    cov(y_{ij}, y_{ik}) &= cov(\mu + \delta_i + e_{ij}, \mu + \delta_i + e_{ik}) \\
+    &= E[(\delta_i + e_{ij})(\delta_i + e_{ik})] \\
+    &= E(\delta_i^2) = \tau^2 \sigma^2
+\end{align*}
+\begin{align*}
+    cov(y_{ij}, y_{i'k}) &= cov(\mu + \delta_i + e_{ij}, \mu + \delta_{i'} + e_{i'k}) \\
+    &=E[(\delta_i + e_{ij})(\delta_{i'} + e_{i'k})] = 0
+\end{align*}
 
 \item Does the assumption that $\sigma^2$ is common to all schools look justified in light of the data?  
 
