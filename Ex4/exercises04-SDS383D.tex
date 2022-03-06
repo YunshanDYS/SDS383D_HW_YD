@@ -150,9 +150,26 @@ where $a_\sigma = \frac{\sum_{i=1}^P N_i + P}{2}$, $b_\sigma = \half \sum_{i=1}^
     &= \text{Inv-Ga} (a_\tau, b_\tau),
 \end{align*}
 where $a_\tau = \frac{P+1}{2}$, $b_\tau = \half + \frac{1}{2 \sigma^2} \sum_{i=1}^P (\theta_i -\mu)^2$.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Ex4/figures/mu_tra.jpeg}
+    %\caption{Average score of each school v.s. number of students.}
+    %\label{fig:bary_n}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Ex4/figures/sig_tra.jpeg}
+    %\caption{Average score of each school v.s. number of students.}
+    %\label{fig:bary_n}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Ex4/figures/tau_tra.jpeg}
+    \caption{Trace plot.}
+    %\label{fig:bary_n}
+\end{figure}
 
-
-
+\newpage \clearpage
 \item Express the conditional posterior mean for $\theta_i$ in the following form:
 $$
 E(\theta_i \mid y, \tau^2, \sigma^2, \mu) = \kappa_i \mu + (1-\kappa_i) \bar{y}_i \, ,
@@ -173,6 +190,13 @@ For each draw of your MCMC, calculate $\kappa_i$ for each school, and save the p
     &= \kappa_i \mu + (1-\kappa_i) \bar{y}_i,
 \end{align*}
 where $\kappa_i = \frac{1}{\tau^2 N_i + 1}$.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Ex4/figures/kappa.jpeg}
+    \caption{School sample size v.s. shrinkage coefficient.}
+    \label{fig:bary_n}
+\end{figure}
+$\kappa_i$ is smaller when the school sample size is larger.
 
 \item Observe that an equivalent way to write your model involves the following decomposition:  
 $$
