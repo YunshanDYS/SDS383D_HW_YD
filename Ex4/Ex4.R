@@ -63,5 +63,15 @@ jpeg("figures/kappa.jpeg",width=600,height=600)
 plot(Ni,kappa_post,xlab="school sample size",ylab=expression(kappa_i))
 dev.off()
 
+var_school <- rep(NA,100)
+for (i in 1:P){
+  var_school[i] <- var(data[which(data$school==i),2])
+}
+
+jpeg("figures/var_school.jpeg",width=600,height=600)
+hist(var_school, breaks = 20)
+dev.off()
+
+
 
 
