@@ -58,6 +58,11 @@ jpeg("figures/tau_tra.jpeg",width=600,height=600)
 plot(iters,tau2[iters],xlab="iterations",ylab=expression(tau^2),bty="l",type="l")
 dev.off()
 
+theta_post <- apply(theta[iters,],2,mean)
+jpeg("figures/theta.jpeg",width=600,height=600)
+plot(Ni,theta_post,xlab="school sample size",ylab=expression(theta))
+dev.off()
+
 kappa_post <- apply(kappa[iters,],2,mean)
 jpeg("figures/kappa.jpeg",width=600,height=600)
 plot(Ni,kappa_post,xlab="school sample size",ylab=expression(kappa_i))
