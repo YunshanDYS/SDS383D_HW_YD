@@ -22,6 +22,38 @@
 \newcommand{\iid}{\overset{\text{iid}}{\sim}}
 \newcommand{\half}{\frac{1}{2}}
 \newcommand{\ynote}[1]{\color{red} #1 \color{black}}
+
+\usepackage{graphicx}
+\usepackage{fancyvrb}
+\usepackage{listings}
+\usepackage{bm}
+\usepackage{xcolor}
+
+\xdefinecolor{gray}{rgb}{0.4,0.4,0.4}
+\xdefinecolor{blue}{RGB}{58,95,205}% R's royalblue3; #3A5FCD
+
+\lstset{% setup listings
+	language=R,% set programming language
+	basicstyle=\ttfamily\small,% basic font style
+	keywordstyle=\color{blue},% keyword style
+        commentstyle=\color{gray},% comment style
+	numbers=left,% display line numbers on the left side
+	numberstyle=\scriptsize,% use small line numbers
+	numbersep=10pt,% space between line numbers and code
+	tabsize=3,% sizes of tabs
+	showstringspaces=false,% do not replace spaces in strings by a certain character
+	captionpos=b,% positioning of the caption below
+        breaklines=true,% automatic line breaking
+        escapeinside={(*}{*)},% escaping to LaTeX
+        fancyvrb=true,% verbatim code is typset by listings
+        extendedchars=false,% prohibit extended chars (chars of codes 128--255)
+        %literate={"}{{\texttt{"}}}1{<-}{{$\bm\leftarrow$}}1{<<-}{{$\bm\twoheadleftarrow$}}1
+        %{~}{{$\bm\sim$}}1{<=}{{$\bm\le$}}1{>=}{{$\bm\ge$}}1{!=}{{$\bm\neq$}}1{^}{{$^{\bm\wedge}$}}1,% item to replace, text, length of chars
+        alsoletter={.<-},% becomes a letter
+        alsoother={\$},% becomes other
+        otherkeywords={!=, ~, \$, \&, \%/\%, \%*\%, \%\%, <-, <<-, /},% other keywords
+        deletekeywords={c}% remove keywords
+}
 %% ys
 
 \usepackage{amsmath}
@@ -206,10 +238,10 @@ where $\delta_i \sim N(0, \tau^2 \sigma^2)$ and $e_{ij} \sim N(0, \sigma^2)$.  (
 
 Conditional on the ``grand mean'' $\mu$, but \emph{marginally} over both $\delta_i$ and $e_{ij}$, compute the following two covariances:
 
-\begin{compactitem}
+\begin{enumerate}
 \item $\mbox{cov}(y_{i,j}, y_{i,k})$, $j \neq k$
 \item $\mbox{cov}(y_{i,j}, y_{i', k})$, $i \neq i'$ and $j \neq k$
-\end{compactitem}
+\end{enumerate}
 
 Does this make sense to you?  Why or why not?  
 
@@ -247,7 +279,60 @@ The data set in ``bloodpressure.csv'' contains data on repeated blood pressure m
 
 \item Is the experimental medication effective at reducing blood pressure?  Do the naive thing and perform a t-test for a difference of means, pooling all the data from treatment 1 into group 1, and all the data from treatment 2 into group 2.  What does this t-test say about the difference between these two group means, and the standard error for the difference?  Why is the t-test (badly) wrong?
 
+\bigskip
+\jie This t-test says that there is significant evidence that the difference between two group means is not equal to 0.
+\begin{lstlisting}
+> y1 <- data$systolic[which(data$treatment==1)]
+> y2 <- data$systolic[which(data$treatment==2)]
+> test1 <- t.test(y1,y2)
+> test1
+
+	Welch Two Sample t-test
+
+data:  y1 and y2
+t = 9.4273, df = 391.66, p-value < 2.2e-16
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+  7.494212 11.443648
+sample estimates:
+mean of x mean of y 
+  142.455   132.986 
+
+> test1$stderr
+[1] 1.004414
+\end{lstlisting}
+This is wrong because we have data points of same subject at different time all together. They are related instead of independent samples.
+\bigskip
+
 \item Now do something better, but still less than ideal.  Calculate $\bar{y}_i$, the mean blood pressure measurement for each patient.  Now treat each person-level mean as if it were just a single data point, and conduct a different t-test for mean blood pressure between treatment 1 and treatment 2.  (If you're doing this correctly, you should have only ten "observations" in each group, where each observation is actually a person-level mean.) What does this t-test say about the difference between these two group means, and the standard error for the difference?  Why is the standard error so much bigger, and why is this appropriate?  Even so, why is this approach (subtly) wrong?  
+
+\bigskip
+\jie
+Under this approach, we ignore the information of the variance within each subject observation. And we only have 10 data points, i,e, the means for the t-test, which can lead to large standard error.
+
+\begin{lstlisting}
+> bar_y <- data %>% group_by(subject,treatment) %>% summarize(ybar=mean(systolic))
+`summarise()` has grouped output by 'subject'. You can override using the `.groups` argument.
+> y1 <- bar_y$ybar[which(bar_y$treatment==1)]
+> y2 <- bar_y$ybar[which(bar_y$treatment==2)]
+> test2 <- t.test(y1,y2)
+> test2
+
+	Welch Two Sample t-test
+
+data:  y1 and y2
+t = 1.6437, df = 17.09, p-value = 0.1185
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+ -2.099195 16.931139
+sample estimates:
+mean of x mean of y 
+ 141.5435  134.1275 
+
+> test2$stderr
+[1] 4.511762
+\end{lstlisting}
+\bigskip
 
 \item Now fit a two-level hierarchical model to this data, of the following form:
 \begin{eqnarray*}
@@ -257,6 +342,67 @@ The data set in ``bloodpressure.csv'' contains data on repeated blood pressure m
 where $y_{ij}$ is blood pressure measurement $j$ on person $i$, and $x_i$ is a dummy (0/1) variable indicating whether a patient received treatment 2, the experimental medication.   Apply what you learned on the previous problem about sampling, hyperparameters, etc, but account for the extra wrinkle here, i.e. the presence of the $\beta x_i$ term that shifts the mean between the treatment and control groups.  
 
 Write our your model's complete conditional distributions, and fit it.  Make a histogram of the posterior distribution for $\beta$, which represents the treatment effect here.  In particular, what are the posterior mean and standard deviation of $\beta$?  How do these compare to the estimates and standard errors from the approaches in (A) and (B)?  
+
+\bigskip
+\jie
+Hierarchical model:
+\begin{eqnarray*}
+(y_{ij} \mid \theta_i, \sigma^2) &\sim& \mbox{N}(\theta_i, \sigma^2) \\
+(\theta_i \mid \tau^2, \sigma^2) &\sim& \mbox{N}(\mu + \beta x_i, \tau^2 \sigma^2)
+\end{eqnarray*}
+Priors:
+\begin{align*}
+    \mu &\propto 1 \\
+    \sigma^2 &\propto \frac{1}{\sigma^2} \\
+    \tau^2 &\propto \text{Inv-Ga}(\half,\half) \\
+    \beta &\sim N(0,1)
+\end{align*}
+
+The joint posterior is 
+\begin{align*}
+    p(\mu, \sigma^2, \tau^2, \theta \mid y) & \propto \prod_{i=1}^P \left\{ \left[\prod_{j=1}^{N_i} (\sigma^2)^{-\half} \exp\{-\frac{1}{2\sigma^2} (y_{ij} - \theta_i)^2\} \right] \cdot (\tau^2 \sigma^2)^{-\half} \exp\{-\frac{1}{2\tau^2 \sigma^2} (\theta_i -(\mu+\beta x_i))^2\} \right\} \\
+    &\;\;\;\; \cdot (\sigma^2)^{-1} \cdot (\tau^2)^{-\half-1} \exp\{-\frac{1}{2\tau^2}\} \cdot \exp\{-\half \beta^2\}\\
+    &\propto (\sigma^2)^{-\frac{\sum_{i=1}^P N_i + P}{2} - 1} \prod_{i=1}^P \exp \{ -\frac{1}{2\sigma^2} \sum_{j=1}^{N_i} (y_{ij} - \theta_i)^2 - \frac{1}{2\tau^2 \sigma^2} (\theta_i - (\mu+\beta x_i))^2 \} \\& \;\;\;\; \cdot (\tau^2)^{-\frac{P+1}{2} - 1} \exp\{-\frac{1}{2\tau^2}\} \cdot \exp\{-\half \beta^2\}
+\end{align*}
+
+The full conditionals
+\begin{align*}
+    p(\beta \mid -) &\propto \prod_{i=1}^P \exp\{-\frac{1}{2\tau^2 \sigma^2} (\theta_i -(\mu+\beta x_i))^2\} \cdot \exp\{-\half \beta^2\} \\
+    &= N(\mu_\beta, \sigma_\beta^2),
+\end{align*}
+where $\sigma_\beta^2 = (\frac{\sum_{i}x_i^2}{\tau^2 \sigma^2} +1)^{-1}$, and $\mu_\beta = \sigma_\beta^2 (\frac{\sum_{i}(\theta_i - \mu)x_i}{\tau^2 \sigma^2})$.
+
+\begin{align*}
+    p(\theta \mid -) &\propto \prod_{i=1}^P \exp \{-\frac{1}{2\sigma^2} \sum_{j=1}^{N_i} (y_{ij}-\theta_i)^2 - \frac{1}{2\tau^2 \sigma^2} (\theta_i - (\mu+\beta x_i))^2 \} \\
+    &= \prod_{i=1}^P N(\tilde{\mu}_i, \tilde{\sigma}_i^2),
+\end{align*}
+where $\tilde{\sigma}_i^2 = (\frac{N_i}{\sigma^2} + \frac{1}{\tau^2 \sigma^2})^{-1}$, $\tilde{\mu}_i  = \tilde{\sigma}_i^2 (\frac{N_i \bar{y}_i}{\sigma^2} + \frac{\mu + \beta x_i}{\tau^2 \sigma^2})$.
+
+\begin{align*}
+    p(\mu \mid -) &\propto \prod_{i=1}^P \exp\{-\frac{1}{2\tau^2 \sigma^2} (\theta_i - (\mu+\beta x_i))^2\} \\
+    &= N(\bar{\theta} - \frac{\sum \beta x_i}{P}, \frac{\tau^2 \sigma^2}{P} )
+\end{align*}
+
+\begin{align*}
+    p(\sigma^2 \mid -) &\propto (\sigma^2)^{-\frac{\sum_{i=1}^P N_i + P}{2} - 1} \prod_{i=1}^P \exp\{ -\frac{1}{2\sigma^2} \sum_{j=1}^{N_i} (y_{ij} - \theta_i)^2 - \frac{1}{2\tau^2 \sigma^2} (\theta_i -(\mu +\beta x_i))^2 \} \\
+    &= \text{Inv-Ga}(a_\sigma, b_\sigma),
+\end{align*}
+where $a_\sigma = \frac{\sum_{i=1}^P N_i + P}{2}$, $b_\sigma = \half \sum_{i=1}^P \sum_{j=1}^{N_i} (y_{ij} - \theta_i)^2 + \sum_{i=1}^P \frac{1}{2\tau^2} (\theta_i -(\mu+\beta x_i))^2$.
+\begin{align*}
+    p(\tau^2 \mid -) &\propto (\tau^2)^{-\frac{P+1}{2} - 1} \exp\{ -\frac{1}{2\tau^2} - \frac{1}{2\tau^2 \sigma^2} \sum_{i=1}^P (\theta_i -(\mu+\beta x_i))^2\} \\
+    &= \text{Inv-Ga} (a_\tau, b_\tau),
+\end{align*}
+where $a_\tau = \frac{P+1}{2}$, $b_\tau = \half + \frac{1}{2 \sigma^2} \sum_{i=1}^P (\theta_i -(\mu+\beta x_i))^2$.
+
+The posterior mean and sd for $\beta$ are
+\begin{lstlisting}
+> beta_post_mean <- mean(beta[iters])
+> beta_post_mean
+[1] -0.334886
+> beta_post_sd <- sd(beta[iters])
+> beta_post_sd
+[1] 0.9897741
+\end{lstlisting}
 
 \item Your two-level model assumes that, conditional on $\theta_i$, the $y_{ij}$ are independent.  Written concisely: $(y_{ij} \perp y_{ik} \mid \theta_i)$ for $j \neq k$. 
 
