@@ -68,15 +68,21 @@ jpeg("figures/kappa.jpeg",width=600,height=600)
 plot(Ni,kappa_post,xlab="school sample size",ylab=expression(kappa_i))
 dev.off()
 
-var_school <- rep(NA,100)
+sigma2_hat <- mean(sigma2[iters])
+
+sd_school <- rep(NA,100)
 for (i in 1:P){
-  var_school[i] <- var(data[which(data$school==i),2])
+  sd_school[i] <- sd(data[which(data$school==i),2])
 }
 
-jpeg("figures/var_school.jpeg",width=600,height=600)
-hist(var_school, breaks = 20)
+jpeg("figures/sd_school.jpeg",width=600,height=600)
+hist(sd_school, breaks = 20)
 dev.off()
 
-
-
+hat_s <- rep(NA,100)
+for (i in 1:P){
+  hat_s[i] <- sd(rnorm(Ni[i],mean=theta_post[i],sd=sqrt(sigma2_hat)) -theta_post[i])
+}
+hist(sd_school, breaks = 20)
+hist(hat_s, breaks = 20,col=rgb(1,0,0,1/4),add=T)
 

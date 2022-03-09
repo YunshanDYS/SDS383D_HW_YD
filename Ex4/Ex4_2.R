@@ -35,10 +35,11 @@ mu <- sigma2 <- tau2 <- beta <- rep(NA,M)
 beta[1] <- 1
 theta[1,] <- rep(1,P)
 mu[1] <- sigma2[1] <- tau2[1] <- 1
+sigma02 <- 10^9
 
 for (m in 2:M){
   # update beta
-  sig2_beta <- 1/(sum(xi^2)/tau2[m-1]/sigma2[m-1] + 1)
+  sig2_beta <- 1/(sum(xi^2)/tau2[m-1]/sigma2[m-1] + 1/sigma02)
   mu_beta <- sig2_beta*(sum((theta[m-1,]-mu[m-1])*xi)/tau2[m-1]/sigma2[m-1])
   beta[m] <- rnorm(1,mean=mu_beta,sd=sqrt(sig2_beta))
   
@@ -85,6 +86,5 @@ beta_post_mean <- mean(beta[iters])
 beta_post_mean
 beta_post_sd <- sd(beta[iters])
 beta_post_sd
-
 
 
