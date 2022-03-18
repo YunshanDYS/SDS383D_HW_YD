@@ -87,4 +87,7 @@ beta_post_mean
 beta_post_sd <- sd(beta[iters])
 beta_post_sd
 
+data %>%
+  group_by(subject) %>%
+  summarize(acf = acf(systolic,lag.max = 2)$acf[3])
 
