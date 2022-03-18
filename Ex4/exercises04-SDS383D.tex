@@ -266,7 +266,17 @@ Does this make sense to you?  Why or why not?
     \label{fig:bary_n}
 \end{figure}
 \jie There is some difference between variance of student score within each school.
+$$\hat{s}_i = \sqrt{\frac{\sum_{j=1}^{N_i} (y_{ij} - \hat{\mu} - \hat{\delta}_i)^2}{N_i - 1}}.$$
 
+Posterior predictive check: If I simulate data, do they have the same properties of the original data? (looks like the real data)
+
+For $m=1:M$ iterations,
+\begin{enumerate}
+    \item MCMC samples $\theta^m$
+    \item Simulate $y \sim p(y \mid \theta^m)$
+    \item Compute $t(y)^m$, e.g., $sd()$.
+    \item Do a t test for $H_0: t(y)^m = true t(y)$, calculate the p value.
+\end{enumerate}
 
 \end{enumerate}
 
@@ -308,7 +318,7 @@ This is wrong because we have data points of same subject at different time all 
 
 \bigskip
 \jie
-Under this approach, we ignore the information of the variance within each subject observation. And we only have 10 data points, i,e, the means for the t-test, which can lead to large standard error.
+Under this approach, we ignore the information of the variance within each subject observation. And we only have 10 data points, i,e, the means for the t-test, which can lead to large standard error. There is a huge difference of the sample size that we are taking the mean from. It is making no sense that assuming they come from the same distribution.
 
 \begin{lstlisting}
 > bar_y <- data %>% group_by(subject,treatment) %>% summarize(ybar=mean(systolic))
@@ -355,8 +365,9 @@ Priors:
     \mu &\propto 1 \\
     \sigma^2 &\propto \frac{1}{\sigma^2} \\
     \tau^2 &\propto \text{Inv-Ga}(\half,\half) \\
-    \beta &\sim N(0,1)
+    \beta &\sim N(0,\sigma_0^2)
 \end{align*}
+We use $\sigma_0^2 = 10^9$ here is put a quite flat prior on $\beta$.
 
 The joint posterior is 
 \begin{align*}
@@ -367,10 +378,10 @@ The joint posterior is
 
 The full conditionals
 \begin{align*}
-    p(\beta \mid -) &\propto \prod_{i=1}^P \exp\{-\frac{1}{2\tau^2 \sigma^2} (\theta_i -(\mu+\beta x_i))^2\} \cdot \exp\{-\half \beta^2\} \\
+    p(\beta \mid -) &\propto \prod_{i=1}^P \exp\{-\frac{1}{2\tau^2 \sigma^2} (\theta_i -(\mu+\beta x_i))^2\} \cdot \exp\{-\frac{1}{2\sigma_0^2} \beta^2\} \\
     &= N(\mu_\beta, \sigma_\beta^2),
 \end{align*}
-where $\sigma_\beta^2 = (\frac{\sum_{i}x_i^2}{\tau^2 \sigma^2} +1)^{-1}$, and $\mu_\beta = \sigma_\beta^2 (\frac{\sum_{i}(\theta_i - \mu)x_i}{\tau^2 \sigma^2})$.
+where $\sigma_\beta^2 = (\frac{\sum_{i}x_i^2}{\tau^2 \sigma^2} +\frac{1}{\sigma_0^2})^{-1}$, and $\mu_\beta = \sigma_\beta^2 (\frac{\sum_{i}(\theta_i - \mu)x_i}{\tau^2 \sigma^2})$.
 
 \begin{align*}
     p(\theta \mid -) &\propto \prod_{i=1}^P \exp \{-\frac{1}{2\sigma^2} \sum_{j=1}^{N_i} (y_{ij}-\theta_i)^2 - \frac{1}{2\tau^2 \sigma^2} (\theta_i - (\mu+\beta x_i))^2 \} \\
@@ -398,11 +409,36 @@ The posterior mean and sd for $\beta$ are
 \begin{lstlisting}
 > beta_post_mean <- mean(beta[iters])
 > beta_post_mean
-[1] -0.334886
+[1] -7.382731
 > beta_post_sd <- sd(beta[iters])
 > beta_post_sd
-[1] 0.9897741
+[1] 4.664943
 \end{lstlisting}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Ex4/figures/2mu_tra.jpeg}
+    %\caption{Average score of each school v.s. number of students.}
+    %\label{fig:bary_n}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Ex4/figures/2beta_tra.jpeg}
+    %\caption{Average score of each school v.s. number of students.}
+    %\label{fig:bary_n}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Ex4/figures/2sig_tra.jpeg}
+    %\caption{Average score of each school v.s. number of students.}
+    %\label{fig:bary_n}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Ex4/figures/2tau_tra.jpeg}
+    \caption{Trace plot.}
+    %\label{fig:bary_n}
+\end{figure}
 
 \item Your two-level model assumes that, conditional on $\theta_i$, the $y_{ij}$ are independent.  Written concisely: $(y_{ij} \perp y_{ik} \mid \theta_i)$ for $j \neq k$. 
 
