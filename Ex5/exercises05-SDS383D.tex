@@ -168,8 +168,13 @@ $$p(s_j^2 \mid -) = \text{Inv-Ga}(\frac{1}2 + \frac{n}2, \frac{1}2 + \frac{1}2\s
 $$p(a \mid -) \propto \prod_{i=1}^n (\sigma^2_i)^{-\frac{a}2 -1} 1(a \in (0.5,10)).$$
 $$p(b \mid -) \propto \exp[- \sum_{i=1}^n \frac{b}{2\sigma_i^2}] 1(b \in (0.5,10)).$$
 
-After implementing the MCMC, I got the posterior mean estimates of the parameters, and here the $\beta_i$ for each stores are as follows.
-
+After implementing the MCMC, I got the posterior mean estimates of the parameters, and here the $\beta_i$ for each stores are shown in Figure \ref{fig:hist_betai}.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Ex5/figures/hist_betai.png}
+    \caption{Histogram of the posterior mean estimates of the $beta_i$ over the stores.}
+    \label{fig:hist_betai}
+\end{figure}
 
 \section{A hierarchical probit model}
 
