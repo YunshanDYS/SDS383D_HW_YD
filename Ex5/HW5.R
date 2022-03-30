@@ -91,6 +91,7 @@ for (m in 2:M){
 
 burnin <- 1000
 iters <- burnin:M
+# trace plots
 png("figures/tra_betai.png",width=600,height=600)
 plot(iters,betai[[1]][iters,1],xlab="iterations",ylab="first element of beta_i for store 1",bty="l",type="l")
 dev.off()
@@ -103,14 +104,15 @@ dev.off()
 png("figures/tra_s2.png",width=600,height=600)
 plot(iters,s2[iters,1],xlab="iterations",ylab="s_j^2 for the first covariate",bty="l",type="l")
 dev.off()
-plot(iters,a[iters],xlab="iterations",ylab="a",bty="l",type="l")
-plot(iters,b[iters],xlab="iterations",ylab="b",bty="l",type="l")
+# plot(iters,a[iters],xlab="iterations",ylab="a",bty="l",type="l")
+# plot(iters,b[iters],xlab="iterations",ylab="b",bty="l",type="l")
 
 post_betai <- matrix(0,nrow=n,ncol=p)
 for (i in 1:n){
   post_betai[i,] <- apply(betai[[i]][iters,],2,mean)
 }
 
+# plot histogram of beta_i
 png("figures/hist_betai.png",width=800,height=800)
 par(mfrow = c(2,2))
 hist(post_betai[,1],xlab = "", main= "Histogram of beta_0i",freq=F)
@@ -119,6 +121,21 @@ hist(post_betai[,3],xlab = "", main= "Histogram of beta_2i",freq=F)
 hist(post_betai[,4],xlab = "", main= "Histogram of beta_3i",freq=F)
 dev.off()
 
+# scatter plot of sigma^2_i
+sig2_post <- apply(sig2[iters,],2,mean)
+png("figures/sig.png",width=800,height=800)
+plot(x=1:n,y=sig2_post,xlab="stores",ylab="sigma_i^2")
+dev.off()
+
+# plot y against estimated y
+y_est <- rep(0,ntotal)
+for (i in 1:ntotal){
+  index <- which(store_names== data$store[i])
+  y_est[i] <- sum(post_betai[index,]*X[i,])
+}
+png("figures/esty.png",width=800,height=800)
+plot(x=y,y=y_est,xlab="y",ylab="estimated y")
+dev.off()
 
 
 
