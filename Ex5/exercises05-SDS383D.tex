@@ -1,4 +1,4 @@
-  \documentclass{mynotes}
+\documentclass[11pt]{article}
 
 %\geometry{showframe}% for debugging purposes -- displays the margins
 
@@ -6,6 +6,55 @@
 \newcommand{\MSE}{\mbox{MSE}}
 \newcommand{\var}{\mbox{var}}
 \newcommand{\bx}{\mathbf{x}}
+
+%% ys
+\usepackage[shortlabels]{enumitem}
+\usepackage{geometry}
+\usepackage{bm}
+\usepackage{amssymb}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{xcolor}
+\usepackage{listings}
+\geometry{a4paper,scale=0.75}
+\newcommand{\jie}{$\star$ }
+\newcommand{\bx}{\bm{x}}
+\newcommand{\iid}{\overset{\text{iid}}{\sim}}
+\newcommand{\half}{\frac{1}{2}}
+\newcommand{\ynote}[1]{\color{red} #1 \color{black}}
+
+\usepackage{graphicx}
+\usepackage{fancyvrb}
+\usepackage{listings}
+\usepackage{bm}
+\usepackage{xcolor}
+
+\xdefinecolor{gray}{rgb}{0.4,0.4,0.4}
+\xdefinecolor{blue}{RGB}{58,95,205}% R's royalblue3; #3A5FCD
+
+\lstset{% setup listings
+	language=R,% set programming language
+	basicstyle=\ttfamily\small,% basic font style
+	keywordstyle=\color{blue},% keyword style
+        commentstyle=\color{gray},% comment style
+	numbers=left,% display line numbers on the left side
+	numberstyle=\scriptsize,% use small line numbers
+	numbersep=10pt,% space between line numbers and code
+	tabsize=3,% sizes of tabs
+	showstringspaces=false,% do not replace spaces in strings by a certain character
+	captionpos=b,% positioning of the caption below
+        breaklines=true,% automatic line breaking
+        escapeinside={(*}{*)},% escaping to LaTeX
+        fancyvrb=true,% verbatim code is typset by listings
+        extendedchars=false,% prohibit extended chars (chars of codes 128--255)
+        %literate={"}{{\texttt{"}}}1{<-}{{$\bm\leftarrow$}}1{<<-}{{$\bm\twoheadleftarrow$}}1
+        %{~}{{$\bm\sim$}}1{<=}{{$\bm\le$}}1{>=}{{$\bm\ge$}}1{!=}{{$\bm\neq$}}1{^}{{$^{\bm\wedge}$}}1,% item to replace, text, length of chars
+        alsoletter={.<-},% becomes a letter
+        alsoother={\$},% becomes other
+        otherkeywords={!=, ~, \$, \&, \%/\%, \%*\%, \%\%, <-, <<-, /},% other keywords
+        deletekeywords={c}% remove keywords
+}
+%% ys
 
 \usepackage{amsmath}
 %\usepackage[garamond]{mathdesign}
@@ -16,7 +65,7 @@
 \setkeys{Gin}{width=\linewidth,totalheight=\textheight,keepaspectratio}
 \graphicspath{{graphics/}}
 
-\title[Exercises 4 $\cdot$ SSC 383D]{Exercises 5: Hierarchical Linear Models}
+\title{Exercises 4 $\cdot$ SSC 383D \\ Exercises 5: Hierarchical Linear Models}
 %\author[ ]{ }
 \date{}  % if the \date{} command is left out, the current date will be used
 
@@ -70,16 +119,62 @@ $$
 which you should feel free to assume here.  Economists would refer to $\beta$ as the price elasticity of demand (PED).  Notice that on a log-log scale, the errors enter multiplicatively.
 
 There are several things for you to consider in analyzing this data set.
-\begin{compactenum}
+\begin{itemize}
 \item The demand curve might shift (different $\alpha$) and also change shape (different $\beta$) depending on whether there is a display ad or not in the store.
 \item Different stores will have very different typical volumes, and your model should account for this.
 \item Do different stores have different PEDs?  If so, do you really want to estimate a separate, unrelated $\beta$ for each store?
 \item If there is an effect on the demand curve due to showing a display ad, does this effect differ store by store, or does it look relatively stable across stores?
 \item Once you build the best model you can using the log-log specification, do see you any evidence of major model mis-fit?
-\end{compactenum}
+\end{itemize}
 Propose an appropriate hierarchical model that allows you to address these issues, and use Gibbs sampling to fit your model.
 
+\bigskip \jie
+Denote we have data for $i = 1, \dots, n$ stores and for each store we have observations $j= 1, \dots, N_i$. The quantity demand is denoted as $Q_{i,j}$ and the price is $P_{i.j}$, and $disp_{i,j}$ is the indicator that product is displayed or not. I use the model as follows,
+$$\log Q_{i,j} = \beta_{0,i} + \beta_{1,i} \log P_{i,j} + \beta_{2,i} 1(disp_{i,j} = 1) + \beta_{3,i} \log P_{i,j} \cdot 1(disp_{i,j} = 1).$$
+This can be rewritten as a linear regression,
+$$y_{ij} = x_{ij}^T \beta_i + \epsilon_{ij},$$
+where $y_{ij} = \log Q_{i,j}$, $x_{ij} = (1, \log P_{i,j}, 1(disp_{i,j} = 1), \log P_{i,j} \cdot 1(disp_{i,j} = 1) )^T$, and $\beta_i = (\beta_{0,i}, \dots, \beta_{3,i})^T$.
+I propose a hierarchical model as follows,
+\begin{align*}
+    y_{ij} \mid \beta_i, \sigma_i^2 &\sim N(x_{ij}^T \beta_i, \sigma_i^2) \\
+    \beta_i \mid \beta, \Sigma &\sim N(\beta, \Sigma = diag(s_1^2, \dots, s_4^2)) \\
+    \sigma^2_i &\propto \text{Inv-Ga}(\frac{a}2, \frac{b}2) \\
+    a &\sim U(1, 10) \\
+    b &\sim U(1, 10) \\
+    \beta & \propto 1  \\
+    s_j^2 &\sim \text{Inv-Ga}(\frac{a_0}2, \frac{b_0}2) =  \text{Inv-Ga}(\frac{1}2, \frac{1}2) \;\;\;\; j=1,\dots, 4
+\end{align*}
+Denote $X_i = \begin{bmatrix}
+x_{i1}^T \\
+\vdots \\
+x_{iN_i}^T
+\end{bmatrix}$, then the sampling model can also be written as
+$$Y_i \mid \beta_i, \sigma_i^2 \sim N_{N_i} (X_i \beta_i , \sigma^2_i I).$$
+We can use the Gibbs sampler to obtain posterior samples based on the full conditionals as follows.
 
+The joint posterior:
+\begin{align*}
+    p(Y_{1:n}, \beta_{1:n}, \beta, \Sigma, \sigma_{1:n}^2) &\propto \prod_{i=1}^n \{ (\sigma_i^2)^{-\frac{N_i}2} \exp \{ - \frac{1}{2\sigma_i^2} (Y_i - X_i \beta_i)^T(Y_i - X_i\beta_i)\}  \\& \;\;\;\; \cdot |\Sigma|^{-\frac{1}2} \exp \{ -\frac{1}2 (\beta_i - \beta)^T \Sigma^{-1} (\beta_i - \beta) \} \cdot (\sigma^2_i)^{-\frac{a}2 - 1} \exp[-\frac{b}{2\sigma^2_i}] \} \\
+    &\;\;\;\; \cdot \prod_{j=1}^4 (s_j^2)^{-\frac{1}2 - 1} \exp[-\frac{1}{2s_j^2}] 1(a\in (1,10)) 1(b\in (1,10))
+\end{align*}
+
+The full conditionals:
+$$p(\beta_i \mid -) = N(\tilde{\mu}_i, \tilde{\Sigma}_i),$$
+where $$\tilde{\Sigma}_i = \left( \frac{X_i^TX_i}{\sigma_i^2} + \Sigma^{-1} \right)^{-1} \text{ and } \tilde{\mu}_i = \tilde{\Sigma}_i \left( \frac{X_i^TY_i}{\sigma_i^2} + \Sigma^{-1}\beta \right).$$
+$$p(\beta \mid - ) = N(\bar{\beta}, \frac{1}n \Sigma),$$
+where $$\bar{\beta} = \frac{1}n \sum_{i=1}^n \beta_i.$$
+$$p(\sigma_i^2 \mid -) = \text{Inv-Ga}(\frac{a}2 + \frac{N_i}2, \frac{b}2 + \frac{1}2(Y_i - X_i\beta_i)^T(Y_i - X_i\beta_i)).$$
+$$p(s_j^2 \mid -) = \text{Inv-Ga}(\frac{1}2 + \frac{n}2, \frac{1}2 + \frac{1}2\sum_{i=1}^n (\beta_{ij}-\beta_j)^2).$$
+$$p(a \mid -) \propto \prod_{i=1}^n (\sigma^2_i)^{-\frac{a}2 -1} 1(a \in (0.5,10)).$$
+$$p(b \mid -) \propto \exp[- \sum_{i=1}^n \frac{b}{2\sigma_i^2}] 1(b \in (0.5,10)).$$
+
+After implementing the MCMC, I got the posterior mean estimates of the parameters, and here the $\beta_i$ for each stores are shown in Figure \ref{fig:hist_betai}.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Ex5/figures/hist_betai.png}
+    \caption{Histogram of the posterior mean estimates of the $beta_i$ over the stores.}
+    \label{fig:hist_betai}
+\end{figure}
 
 \section{A hierarchical probit model}
 
