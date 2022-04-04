@@ -44,11 +44,11 @@ y <- as.numeric(data$bush)
 X <- cbind(rep(1,ntotal), 
            data$edu_NoHS, data$edu_HS, data$edu_SomeColl, #data$edu_Bacc,
            data$age_18to29, data$age_30to44, data$age_45to64, #data$age_65plus,
-           data$female, data$black)
+           data$female, data$black, scale(data$weight))
 # X <- cbind(rep(1,ntotal),
 #            data$edu_NoHS, data$edu_HS, data$edu_SomeColl, data$edu_Bacc,
 #            data$age_18to29, data$age_30to44, data$age_45to64, data$age_65plus,
-#            data$female, data$black, data$weight)
+#            data$female, data$black, scale(data$weight))
 X <- apply(X,2,as.numeric)
 p <- ncol(X)
 
@@ -70,23 +70,23 @@ for (i in 1:n){
 Sigma <- diag(p) ##
 nu.0 <- p+1 ##
 for (m in 2:M){
-  # update beta_i
-  for (i in 1:n){
-    Xi <- Xi_list[[i]]
-    ai <- matrix(aij[(m-1),][ind[[i]]],ncol=1)
-    tilde_Sig <- solve(t(Xi)%*%Xi + diag(1/s2[(m-1),]))
-    tilde_mu <- tilde_Sig%*%( t(Xi)%*%ai  + matrix(1/s2[(m-1),]*beta[(m-1),],ncol=1) )
-    betai[[i]][m,] <- rmvnorm(1, tilde_mu, tilde_Sig)
-  }
-  
-  # for(i in 1:n){
+  # # update beta_i
+  # for (i in 1:n){
   #   Xi <- Xi_list[[i]]
   #   ai <- matrix(aij[(m-1),][ind[[i]]],ncol=1)
-  #   B.tilde <- solve(solve(Sigma) + t(Xi)%*%Xi)
-  #   beta.tilde <- B.tilde%*%(  solve(Sigma)%*%matrix(beta[(m-1),],ncol=1) +  t(Xi)%*%ai )
-  # 
-  #   betai[[i]][m,] <- rmvnorm(1, beta.tilde, B.tilde, checkSymmetry = FALSE) # added last argument
+  #   tilde_Sig <- solve(t(Xi)%*%Xi + diag(1/s2[(m-1),]))
+  #   tilde_mu <- tilde_Sig%*%( t(Xi)%*%ai  + matrix(1/s2[(m-1),]*beta[(m-1),],ncol=1) )
+  #   betai[[i]][m,] <- rmvnorm(1, tilde_mu, tilde_Sig)
   # }
+  
+  for(i in 1:n){
+    Xi <- Xi_list[[i]]
+    ai <- matrix(aij[(m-1),][ind[[i]]],ncol=1)
+    B.tilde <- solve(solve(Sigma) + t(Xi)%*%Xi)
+    beta.tilde <- B.tilde%*%(  solve(Sigma)%*%matrix(beta[(m-1),],ncol=1) +  t(Xi)%*%ai )
+
+    betai[[i]][m,] <- rmvnorm(1, beta.tilde, B.tilde, checkSymmetry = FALSE) # added last argument
+  }
   
   # update beta
   bar_beta <- rep(0,p)
@@ -98,24 +98,24 @@ for (m in 2:M){
     beta[m,j] <- rnorm(1, bar_beta[j], sqrt(s2[m-1,j]/n))
   }
   
-  # update s2
-  alpha2 <- (n+1)/2
-  beta2 <- sapply(betai,FUN = function(x) (x[m,] - beta[m,])^2)
-  beta2 <- apply(beta2,1,sum)/2 + rep(1/2,p)
-  for(j in 1:p){
-    s2[m,j] <- rinvgamma(1, alpha2, beta2[j])
-  }
+  # # update s2
+  # alpha2 <- (n+1)/2
+  # beta2 <- sapply(betai,FUN = function(x) (x[m,] - beta[m,])^2)
+  # beta2 <- apply(beta2,1,sum)/2 + rep(1/2,p)
+  # for(j in 1:p){
+  #   s2[m,j] <- rinvgamma(1, alpha2, beta2[j])
+  # }
 
   ###
 
-  # nu <- n + nu.0
-  # tmp.sum <- 0
-  # for(i in 1:n){
-  #   tmp.sum <- tmp.sum + (betai[[i]][m,] - beta[m,])%*%t(betai[[i]][m,] - beta[m,])
-  # }
-  # S <- diag(p) + tmp.sum
-  # 
-  # Sigma <- rinvwishart(nu, S)
+  nu <- n + nu.0
+  tmp.sum <- 0
+  for(i in 1:n){
+    tmp.sum <- tmp.sum + (betai[[i]][m,] - beta[m,])%*%t(betai[[i]][m,] - beta[m,])
+  }
+  S <- diag(p) + tmp.sum
+
+  Sigma <- rinvwishart(nu, S)
   
   # update aij
   for (i in 1:ntotal){
@@ -169,21 +169,27 @@ for (i in 1:n){
 # dev.off()
 
 plot_title <- c("intercept", "edu_NoHS", "edu_HS", "edu_SomeColl", 
-                "age_18to29", "age_30to44", "age_45to64", "female", "black")
+                "age_18to29", "age_30to44", "age_45to64", "female", "black", "weight")
+post_beta <- apply(beta[iters,],2,mean)
+df_plot <- data.frame(covariates = plot_title, post = post_beta, col= as.character(as.numeric(post_beta > 0)) )
+p0 <- ggplot() +
+  geom_point(data = df_plot, aes(x = covariates, y = post, color = col),size=2) +
+  scale_color_manual(values = c("1" = "red", "0" = "blue")) +
+  theme(legend.position="none") +
+  geom_hline(yintercept=0, linetype="dashed", color = "black") 
+p0
+ggsave(paste0("figures/2post covariates0.png"),width=12,height=8)
+p0
 
-for (i in 1:p){
-  df_plot <- data.frame(state = state_names, post = post_betai[,i], col= as.character(as.numeric(post_betai[,i] > 0)) )
-  p0 <- ggplot() +
-    geom_point(data = df_plot, aes(x = state, y = post, color = col),size=2) +
-    scale_color_manual(values = c("1" = "red", "0" = "blue")) +
-    theme(legend.position="none") +
-    geom_hline(yintercept=0, linetype="dashed", color = "black") +
-    ggtitle(plot_title[i]) 
-  assign(paste0("p",i),p0)
-  ggsave(paste0("figures/2post covariates",i, ".png"),width=12,height=8)
-}
-p1
-
+df_plot <- data.frame(state = state_names, post = post_beta[,i], col= as.character(as.numeric(post_betai[,i] > 0)) )
+p0 <- ggplot() +
+  geom_point(data = df_plot, aes(x = state, y = post, color = col),size=2) +
+  scale_color_manual(values = c("1" = "red", "0" = "blue")) +
+  theme(legend.position="none") +
+  geom_hline(yintercept=0, linetype="dashed", color = "black") +
+  ggtitle(plot_title[i]) 
+assign(paste0("p",i),p0)
+ggsave(paste0("figures/2post covariates",i, ".png"),width=12,height=8)
 
 # par(mfrow = c(3,3))
 # plot(1:n,post_betai[,1],xlab="States",ylab="mu", xlim=state_names, ylim=-2,2)
