@@ -276,7 +276,14 @@ We can use the following data augmentation:
 The full conditionals for Gibbs sampling are:
 $$p(\beta_i \mid - ) \propto N(\tilde{\mu}_i, \tilde{\Sigma}_i),$$
 where
-$$\tilde{\Sigma}_i = (X_i^TX_i + \Sigma^{-1})^{-1},$$
+$$\tilde{\Sigma}_i = (X_i^TX_i + \Sigma^{-1})^{-1}, \;\; \tilde{\mu}_i = \tilde{\Sigma}_i (X_i^Ta_i + \Sigma^{-1}\mu).$$
+$$p(\mu \mid -) = N(\bar{\beta}, \frac{1}{n} \Sigma).$$
+$$p(\sigma_k^2 \mid -) = \text{Inv-Ga}(\frac{1}2 + \frac{1}n, \frac{1}2 + \frac{1}2 \sum_{i=1}^n (\beta_{ik} - \mu_k)^2 ).$$
+$$p(a_{ij} \mid -) = N(a_{ij} \mid x_{ij}^T\beta_i, 1) 
+\begin{cases}
+1(a_{ij} >0), & y_{ij}=1 \\
+1(a_{ij} \leq 0), & y_{ij}=0 
+\end{cases}$$
 
 \begin{figure}
     \centering
@@ -354,6 +361,16 @@ $$\tilde{\Sigma}_i = (X_i^TX_i + \Sigma^{-1})^{-1},$$
     \begin{subfigure}[t]{0.9\textwidth}
         \centering
         \includegraphics[width=\linewidth]{Ex5/figures/2post covariates10.png} 
+        %\caption{Competitors} \label{fig:timing2}
+    \end{subfigure}
+    \caption{Posterior estimates of the covariates for each state.}
+\end{figure}
+
+\begin{figure}
+
+    \begin{subfigure}[t]{0.9\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Ex5/figures/2post covariates0.png} 
         %\caption{Competitors} \label{fig:timing2}
     \end{subfigure}
     \caption{Posterior estimates of the covariates.}
