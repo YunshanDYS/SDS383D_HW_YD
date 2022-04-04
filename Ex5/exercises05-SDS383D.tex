@@ -18,7 +18,7 @@
 \usepackage{listings}
 \geometry{a4paper,scale=0.75}
 \newcommand{\jie}{$\star$ }
-\newcommand{\bx}{\bm{x}}
+\renewcommand{\bx}{\bm{x}}
 \newcommand{\iid}{\overset{\text{iid}}{\sim}}
 \newcommand{\half}{\frac{1}{2}}
 \newcommand{\ynote}[1]{\color{red} #1 \color{black}}
@@ -28,6 +28,9 @@
 \usepackage{listings}
 \usepackage{bm}
 \usepackage{xcolor}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{graphicx}
 
 \xdefinecolor{gray}{rgb}{0.4,0.4,0.4}
 \xdefinecolor{blue}{RGB}{58,95,205}% R's royalblue3; #3A5FCD
@@ -175,6 +178,42 @@ After implementing the MCMC, I got the posterior mean estimates of the parameter
     \caption{Histogram of the posterior mean estimates of the $beta_i$ over the stores.}
     \label{fig:hist_betai}
 \end{figure}
+\begin{figure}
+    \centering
+    \begin{subfigure}[t]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Ex5/figures/tra_betai.png} 
+        %\caption{Generic} \label{fig:timing1}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Ex5/figures/tra_beta.png} 
+        %\caption{Competitors} \label{fig:timing2}
+    \end{subfigure}
+
+    \vspace{1cm}
+    \centering
+    \begin{subfigure}[t]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Ex5/figures/tra_sig2.png} 
+        %\caption{Generic} \label{fig:timing1}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Ex5/figures/tra_s2.png} 
+        %\caption{Competitors} \label{fig:timing2}
+    \end{subfigure}
+    \caption{Trace plots.}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Ex5/figures/hist_betai.png}
+    \caption{Histogram of the posterior mean estimates of the $beta_i$ over the stores.}
+    \label{fig:hist_betai}
+\end{figure}
+
 
 \section{A hierarchical probit model}
 
