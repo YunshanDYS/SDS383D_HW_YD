@@ -264,9 +264,12 @@ $$
 
 where $(y_i^{\star}, x_i^{\star})$ are the points in the test set, and $ \hat{y}_i^{\star}$ is your predicted value arising from the model you fit using only the training data.  Does your out-of-sample predictive validation method lead to reasonable choices of $h$ for each case?
 
+\bigskip \jie
+We can tell from the results that, with high noise, we choose relatively large $h$ and for the lower noisy cases, the $h$ chosen are very small. The smooth and low noise case got fitted very well and the smooth, high noise, and wiggly, low noise cases are not bad. However, the wiggly with high noise case did not get the function estimated very well.
+
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\textwidth]{Ex6}
+    \includegraphics[width=\textwidth]{Ex6/figures/crossva.png}
     \caption{Estimated Functions.}
     %\label{fig:hist_betai}
 \end{figure}
@@ -296,7 +299,12 @@ Like I said, proving this lemma is optional. I will prove it in class, but consi
 
 \item Use the leave-one-out lemma to revisit the examples you simulated in Part B, using leave-one-out cross validation to select $h$ in each case.  Because of the leave-one-out lemma, you won't need to actually refit the model N times!  
 
-
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{Ex6/figures/crossva_LOO.png}
+    \caption{Estimated Functions.}
+    %\label{fig:hist_betai}
+\end{figure}
 
 \end{enumerate}
 
