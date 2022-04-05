@@ -1,5 +1,5 @@
-  \documentclass{mynotes}
-\hypersetup{colorlinks}% uncomment this line if you prefer colored hyperlinks (e.g., for onscreen viewing)
+\documentclass[11pt]{article}
+%\hypersetup{colorlinks}% uncomment this line if you prefer colored hyperlinks (e.g., for onscreen viewing)
 
 %\geometry{showframe}% for debugging purposes -- displays the margins
 
@@ -19,7 +19,7 @@
 \setkeys{Gin}{width=\linewidth,totalheight=\textheight,keepaspectratio}
 \graphicspath{{graphics/}}
 
-\title[Exercises 3 $\cdot$ SDS 383D]{Exercises 6: Linear smoothing and Gaussian processes}
+\title{Exercises 6 $\cdot$ SDS 383D \\ Exercises 6: Linear smoothing and Gaussian processes}
 %\author[ ]{ }
 \date{}  % if the \date{} command is left out, the current date will be used
 
@@ -56,6 +56,57 @@
 \newcommand{\sigmahat}{\hat{\sigma}}
 \newcommand{\betahat}{\hat{\beta}}
 
+%% ys
+\usepackage[shortlabels]{enumitem}
+\usepackage{geometry}
+\usepackage{bm}
+\usepackage{amssymb}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{xcolor}
+\usepackage{listings}
+\geometry{a4paper,scale=0.75}
+\newcommand{\jie}{$\star$ }
+\renewcommand{\bx}{\bm{x}}
+\newcommand{\iid}{\overset{\text{iid}}{\sim}}
+\newcommand{\half}{\frac{1}{2}}
+\newcommand{\ynote}[1]{\color{red} #1 \color{black}}
+
+\usepackage{graphicx}
+\usepackage{fancyvrb}
+\usepackage{listings}
+\usepackage{bm}
+\usepackage{xcolor}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{graphicx}
+
+\xdefinecolor{gray}{rgb}{0.4,0.4,0.4}
+\xdefinecolor{blue}{RGB}{58,95,205}% R's royalblue3; #3A5FCD
+
+\lstset{% setup listings
+	language=R,% set programming language
+	basicstyle=\ttfamily\small,% basic font style
+	keywordstyle=\color{blue},% keyword style
+        commentstyle=\color{gray},% comment style
+	numbers=left,% display line numbers on the left side
+	numberstyle=\scriptsize,% use small line numbers
+	numbersep=10pt,% space between line numbers and code
+	tabsize=3,% sizes of tabs
+	showstringspaces=false,% do not replace spaces in strings by a certain character
+	captionpos=b,% positioning of the caption below
+        breaklines=true,% automatic line breaking
+        escapeinside={(*}{*)},% escaping to LaTeX
+        fancyvrb=true,% verbatim code is typset by listings
+        extendedchars=false,% prohibit extended chars (chars of codes 128--255)
+        %literate={"}{{\texttt{"}}}1{<-}{{$\bm\leftarrow$}}1{<<-}{{$\bm\twoheadleftarrow$}}1
+        %{~}{{$\bm\sim$}}1{<=}{{$\bm\le$}}1{>=}{{$\bm\ge$}}1{!=}{{$\bm\neq$}}1{^}{{$^{\bm\wedge}$}}1,% item to replace, text, length of chars
+        alsoletter={.<-},% becomes a letter
+        alsoother={\$},% becomes other
+        otherkeywords={!=, ~, \$, \&, \%/\%, \%*\%, \%\%, <-, <<-, /},% other keywords
+        deletekeywords={c}% remove keywords
+}
+%% ys
 
 \begin{document}
 
@@ -145,6 +196,20 @@ w_K(x_i, x^{\star}) = \left \{
 \right.
 $$
 This is referred to as \textit{K-nearest-neighbor smoothing}.
+
+\bigskip \jie
+The least squares estimate is
+\begin{align*}
+    \hat{\beta} &= (X'X)^{-1}X'Y \\
+    &= (\sum_{i=1}^n x_i^2)^{-1} \sum_{i=1}^n x_i y_i \\
+    &= \sum_{i=1}^n \frac{x_i}{\sum_{i=1}^n x_i^2} y_i
+\end{align*}
+Then, the linear smoother
+$$\hat{f}(x^{\star}) = \sum_{i=1}^n \frac{x_i x^\star}{\sum_{i=1}^n x_i^2} y_i,$$
+where 
+$$ w(x_i, x^{\star}) = \frac{x_i x^\star}{\sum_{i=1}^n x_i^2}.$$
+The linear smoother is able to assign weights based on the distance between the samples and $x^\star$ and consider all samples.
+\bigskip
 
 \item A \textit{kernel function} $K(x)$ is a smooth function satisyfing
 $$
@@ -289,7 +354,7 @@ $$
 for all $x_1, x_2 \in \mathcal{X}$.  More generally, the random vector $[f(x_1), \ldots, f(x_N)]^T$ has covariance matrix whose $(i,j)$ element is $C(x_i, x_j)$.  Typical covariance functions are those that decay as a function of increasing distance between points $x_1$ and $x_2$.  The notion is that $f(x_1)$ and $f(x_2)$ will have high covariance when $x_1$ and $x_2$ are close to each other.
 
 \begin{enumerate}[(A)]
-\item   Read up on the \href{https://en.wikipedia.org/wiki/MatŽrn_covariance_function}{Matern class}\footnote{\url{https://en.wikipedia.org/wiki/Matern_covariance_function}} of covariance functions.  The Matern class has the \textit{squared exponential} covariance function as a special case:
+\item   Read up on the \href{https://en.wikipedia.org/wiki/Matï¿½rn_covariance_function}{Matern class}\footnote{\url{https://en.wikipedia.org/wiki/Matern_covariance_function}} of covariance functions.  The Matern class has the \textit{squared exponential} covariance function as a special case:
 $$
 C_{SE}(x_1, x_2) = \tau_1^2 \exp \left\{ - \frac{1}{2} \left( \frac{d(x_1, x_2)}{b} \right)^2 \right\} + \tau^2_2 \delta(x_1, x_2) \, ,
 $$
@@ -358,4 +423,3 @@ Justify your reasoning for using Euclidean distance or this ``nonisotropic'' dis
 
 
 \end{document}
-
