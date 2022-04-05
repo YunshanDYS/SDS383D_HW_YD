@@ -55,5 +55,97 @@ ggplot(df_plot, aes(x = x, y = value, color = variable)) +
   geom_line()
 ggsave("figures/kernel.png", width=8, height=6)
 
+### Cross Validation
+nh <- 100
+h_seq <- seq(0.1,2,length.out=nh)
+ngrid <- 500
+x_grid <- seq(-3,3,length.out = ngrid)
+
+## Cross Validation Function
+cross_va <- function(x_train, y_train, x_test, y_test){
+  f_grid <- matrix(NA,ncol=nh, nrow=ngrid)
+  y_est <- matrix(NA,ncol=nh, nrow=length(y_test))
+  err <- rep(NA,nh)
+  for (k in 1:nh){
+    for (i in 1:ngrid){
+      f_grid[i,k] <- Kern_reg(y_train,x_train,x_grid[i],h_seq[k])
+    }
+    for (i in 1:length(y_test)){
+      y_est[i,k] <- Kern_reg(y_train,x_train,x_test[i],h_seq[k])
+    }
+    err[k] <- mean((y_est[,k] - y_test)^2)
+  }
+  return(list(f_grid = f_grid, err = err))
+}
+
+## smooth, low noise
+## f(x) = x^2, eps \sim N(0,0.5^2)
+x <- rnorm(1000,0,2)
+y <- x^2 + rnorm(1000,0,0.5)
+out1 <- cross_va(x_train=x[1:500], y_train=y[1:500], x_test=x[501:1000], y_test=y[501:1000])
+ind <- which.min(out1$err)
+h_sel <- h_seq[ind]
+f_grid <- out1$f_grid[,ind]
+df <- data.frame(cbind(x_grid, x_grid^2, f_grid, out1$f_grid[,c(25,50,75)]))
+colnames(df) <- c("x", "f(x)", paste0("Selected h = ", round(h_sel,4)), paste0(rep("h = ",3), round(h_seq[c(25,50,75)],4)))
+df_plot <- melt(df, id = "x")
+
+p1 <- ggplot(df_plot, aes(x = x, y = value, color = variable)) +
+  geom_line() +
+  ggtitle("Smooth, low noise")
+p1
+
+## smooth, high noise
+## f(x) = x^2, eps \sim N(0,5^2)
+x <- rnorm(1000,0,2)
+y <- x^2 + rnorm(1000,0,2)
+out1 <- cross_va(x_train=x[1:500], y_train=y[1:500], x_test=x[501:1000], y_test=y[501:1000])
+ind <- which.min(out1$err)
+h_sel <- h_seq[ind]
+f_grid <- out1$f_grid[,ind]
+df <- data.frame(cbind(x_grid, x_grid^2, f_grid, out1$f_grid[,c(25,50,75)]))
+colnames(df) <- c("x", "f(x)", paste0("Selected h = ", round(h_sel,4)), paste0(rep("h = ",3), round(h_seq[c(25,50,75)],4)))
+df_plot <- melt(df, id = "x")
+
+p2 <- ggplot(df_plot, aes(x = x, y = value, color = variable)) +
+  geom_line() +
+  ggtitle("Smooth, high noise")
+p2
+
+## wiggly, low noise
+x <- rnorm(1000,0,2)
+y <- sin(5*x) + rnorm(1000,0,0.5)
+out1 <- cross_va(x_train=x[1:500], y_train=y[1:500], x_test=x[501:1000], y_test=y[501:1000])
+ind <- which.min(out1$err)
+h_sel <- h_seq[ind]
+f_grid <- out1$f_grid[,ind]
+df <- data.frame(cbind(x_grid, sin(5*x_grid), f_grid, out1$f_grid[,c(25,50,75)]))
+colnames(df) <- c("x", "f(x)", paste0("Selected h = ", round(h_sel,4)), paste0(rep("h = ",3), round(h_seq[c(25,50,75)],4)))
+df_plot <- melt(df, id = "x")
+
+p3 <- ggplot(df_plot, aes(x = x, y = value, color = variable)) +
+  geom_line() +
+  ggtitle("Wiggly, low noise")
+p3
+
+## wiggly, high noise
+x <- rnorm(1000,0,2)
+y <- sin(5*x) + rnorm(1000,0,2)
+out1 <- cross_va(x_train=x[1:500], y_train=y[1:500], x_test=x[501:1000], y_test=y[501:1000])
+ind <- which.min(out1$err)
+h_sel <- h_seq[ind]
+f_grid <- out1$f_grid[,ind]
+df <- data.frame(cbind(x_grid, sin(5*x_grid), f_grid, out1$f_grid[,c(25,50,75)]))
+colnames(df) <- c("x", "f(x)", paste0("Selected h = ", round(h_sel,4)), paste0(rep("h = ",3), round(h_seq[c(25,50,75)],4)))
+df_plot <- melt(df, id = "x")
+
+p4 <- ggplot(df_plot, aes(x = x, y = value, color = variable)) +
+  geom_line() +
+  ggtitle("Wiggly, high noise")
+p4
+
+ggarrange(p1,p2,p3,p4,ncol=2,nrow=2)
+ggsave("figures/crossva.png",width=15,height=12)
+
 
 
