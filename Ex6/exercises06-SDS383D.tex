@@ -238,8 +238,16 @@ where $h$ is the bandwidth.    Using this weighting function in a linear smoothe
 
 Write your own R function that will fit a kernel smoother for an arbitrary set of $x$-$y$ pairs and arbitrary choice of (positive real) bandwidth $h$.\footnote{Coding tip: write things in a modular way.  A kernel function is a function accepting a distance and a bandwidth and returning a nonnegative real.  A weighting function is a function that accepts a vector of previous $x$'s, a new x, and a kernel function; and that returns a vector of weights.  Et cetera.  It's much, much easier to debug modular code.}  You choose the kernel.  Set up an R script that will simulate noisy data from some nonlinear function, $y = f(x) + \epsilon$; subtract the sample means from the simulated $x$ and $y$; and use your function to fit the kernel smoother for some choice of $h$. Plot the estimated functions for a range of bandwidths wide enough to yield noticeable differences in the qualitative behavior of the prediction functions.
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Ex6/figures/kernel.png}
+    \caption{Estimated Functions.}
+    %\label{fig:hist_betai}
+\end{figure}
+
 \end{enumerate}
 
+\newpage
 \section{Cross validation}
 
 Left unanswered so far in our previous study of kernel regression is the question: how does one choose the bandwidth $h$ used for the kernel?  Assume for now that the goal is to predict well, not necessarily to recover the truth.  (These are related but distinct goals.)  
@@ -253,7 +261,15 @@ Left unanswered so far in our previous study of kernel regression is the questio
 $$
 L_n(\hat{f}) = \frac{1}{n}\sum_{i=1}^{n^{\star}} (y^{\star}_i - \hat{y}_i^{\star} )^2 \, ,
 $$
+
 where $(y_i^{\star}, x_i^{\star})$ are the points in the test set, and $ \hat{y}_i^{\star}$ is your predicted value arising from the model you fit using only the training data.  Does your out-of-sample predictive validation method lead to reasonable choices of $h$ for each case?
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Ex6}
+    \caption{Estimated Functions.}
+    %\label{fig:hist_betai}
+\end{figure}
 
 \item (optional problem,``leave-one-out lemma.'') Splitting a data set into two chunks to choose $h$ by out-of-sample validation has some drawbacks.  (See if you can think of two; one is obvious, one is more subtle.)  Then consider an alternative: leave-one-out cross validation.  Define
 $$
