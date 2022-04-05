@@ -147,5 +147,97 @@ p4
 ggarrange(p1,p2,p3,p4,ncol=2,nrow=2)
 ggsave("figures/crossva.png",width=15,height=12)
 
+## LOOCV
+## Cross Validation Function
+nh <- 100
+h_seq <- seq(0.1,2,length.out=nh)
+ngrid <- 500
+x_grid <- seq(-3,3,length.out = ngrid)
+cross_va_LOO <- function(x, y){
+  f_grid <- rep(NA,ngrid)
+  err <- rep(NA,nh)
+  n <- length(y)
+  H <- matrix(NA,ncol=n, nrow=n)
+  for (k in 1:nh){
+    for (i in 1:n){
+      H[i,] <- weight(x, x[i], h_seq[k], Kern)
+    }
+    yhat <- H%*%y
+    err[k] <- mean((y-yhat/(1-diag(H)))^2)
+  }
+  h <- h_seq[which.min(err)]
+  for (i in 1:ngrid){
+    f_grid[i] <- Kern_reg(y,x,x_grid[i],h)
+  }
+  return(list(f_grid = f_grid, h = h))
+}
+
+## smooth, low noise
+## f(x) = x^2, eps \sim N(0,0.5^2)
+x <- rnorm(1000,0,2)
+y <- x^2 + rnorm(1000,0,0.5)
+out1 <- cross_va_LOO(x,y)
+h_sel <- out1$h
+f_grid <- out1$f_grid
+df <- data.frame(cbind(x_grid, x_grid^2, f_grid))
+colnames(df) <- c("x", "f(x)", paste0("Selected h = ", round(h_sel,4)))
+df_plot <- melt(df, id = "x")
+
+p1 <- ggplot(df_plot, aes(x = x, y = value, color = variable)) +
+  geom_line() +
+  ggtitle("Smooth, low noise")
+p1
+
+## smooth, high noise
+## f(x) = x^2, eps \sim N(0,5^2)
+x <- rnorm(1000,0,2)
+y <- x^2 + rnorm(1000,0,2)
+out1 <- cross_va_LOO(x,y)
+h_sel <- out1$h
+f_grid <- out1$f_grid
+df <- data.frame(cbind(x_grid, x_grid^2, f_grid))
+colnames(df) <- c("x", "f(x)", paste0("Selected h = ", round(h_sel,4)))
+df_plot <- melt(df, id = "x")
+
+p2 <- ggplot(df_plot, aes(x = x, y = value, color = variable)) +
+  geom_line() +
+  ggtitle("Smooth, high noise")
+p2
+
+## wiggly, low noise
+x <- rnorm(1000,0,2)
+y <- sin(5*x) + rnorm(1000,0,0.5)
+out1 <- cross_va_LOO(x,y)
+h_sel <- out1$h
+f_grid <- out1$f_grid
+df <- data.frame(cbind(x_grid, sin(5*x_grid), f_grid))
+colnames(df) <- c("x", "f(x)", paste0("Selected h = ", round(h_sel,4)))
+df_plot <- melt(df, id = "x")
+
+p3 <- ggplot(df_plot, aes(x = x, y = value, color = variable)) +
+  geom_line() +
+  ggtitle("Wiggly, low noise")
+p3
+
+## wiggly, high noise
+x <- rnorm(1000,0,2)
+y <- sin(5*x) + rnorm(1000,0,2)
+out1 <- cross_va_LOO(x,y)
+h_sel <- out1$h
+f_grid <- out1$f_grid
+df <- data.frame(cbind(x_grid, sin(5*x_grid), f_grid))
+colnames(df) <- c("x", "f(x)", paste0("Selected h = ", round(h_sel,4)))
+df_plot <- melt(df, id = "x")
+
+p4 <- ggplot(df_plot, aes(x = x, y = value, color = variable)) +
+  geom_line() +
+  ggtitle("Wiggly, high noise")
+p4
+
+ggarrange(p1,p2,p3,p4,ncol=2,nrow=2)
+ggsave("figures/crossva_LOO.png",width=15,height=12)
+
+
+
 
 
