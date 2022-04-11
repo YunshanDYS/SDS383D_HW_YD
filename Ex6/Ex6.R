@@ -116,7 +116,7 @@ p2
 
 ## wiggly, low noise
 x <- rnorm(1000,0,2)
-y <- sin(5*x) + rnorm(1000,0,0.5)
+y <- sin(5*x) + rnorm(1000,0,0.1)
 out1 <- cross_va(x_train=x[1:500], y_train=y[1:500], x_test=x[501:1000], y_test=y[501:1000])
 ind <- which.min(out1$err)
 h_sel <- h_seq[ind]
@@ -132,7 +132,7 @@ p3
 
 ## wiggly, high noise
 x <- rnorm(1000,0,2)
-y <- sin(5*x) + rnorm(1000,0,2)
+y <- sin(5*x) + rnorm(1000,0,1)
 out1 <- cross_va(x_train=x[1:500], y_train=y[1:500], x_test=x[501:1000], y_test=y[501:1000])
 ind <- which.min(out1$err)
 h_sel <- h_seq[ind]
@@ -165,7 +165,7 @@ cross_va_LOO <- function(x, y){
       H[i,] <- weight(x, x[i], h_seq[k], Kern)
     }
     yhat <- H%*%y
-    err[k] <- mean((y-yhat/(1-diag(H)))^2)
+    err[k] <- sum((y-yhat/(1-diag(H)))^2)
   }
   h <- h_seq[which.min(err)]
   for (i in 1:ngrid){
@@ -208,7 +208,7 @@ p2
 
 ## wiggly, low noise
 x <- rnorm(1000,0,2)
-y <- sin(5*x) + rnorm(1000,0,0.5)
+y <- sin(5*x) + rnorm(1000,0,0.1)
 out1 <- cross_va_LOO(x,y)
 h_sel <- out1$h
 f_grid <- out1$f_grid
@@ -223,7 +223,7 @@ p3
 
 ## wiggly, high noise
 x <- rnorm(1000,0,2)
-y <- sin(5*x) + rnorm(1000,0,2)
+y <- sin(5*x) + rnorm(1000,0,1)
 out1 <- cross_va_LOO(x,y)
 h_sel <- out1$h
 f_grid <- out1$f_grid
@@ -238,6 +238,85 @@ p4
 
 ggarrange(p1,p2,p3,p4,ncol=2,nrow=2)
 ggsave("figures/crossva_LOO.png",width=15,height=12)
+
+
+### Local linear regression
+## Function for s_1(x)
+s1 <- function(x, x_new, h){
+  n <- length(x_new)
+  s1 <- rep(0,n)
+  for (i in 1:n){
+    s1[i] <- sum(weight(x, x_new[i], h, Kern) * (x - x_new[i]))
+  }
+  return(s1)
+}
+
+## Function for s_2(x)
+s2 <- function(x, x_new, h){
+  n <- length(x_new)
+  s2 <- rep(0,n)
+  for (i in 1:n){
+    s2[i] <- sum(weight(x, x_new[i], h, Kern) * (x - x_new[i])^2)
+  }
+  return(s2)
+}
+
+## Function for w_i(x) (H matrix)
+wi <- function(x, x_new, h){
+  n <- length(x_new)
+  wi <- matrix(0,ncol=n,nrow=n)
+  for (i in 1:n){
+    wi[i,] <- weight(x, x_new[i], h, Kern) * (s2(x,x_new,h) - (x - x_new[i])*s1(x,x_new,h))
+    wi[i,] <- wi[i,]/sum(wi[i,])
+  }
+  return(wi)
+}
+
+## Cross Validation Function
+nh <- 100
+h_seq <- seq(0.1,10,length.out=nh)
+cross_va_LOO_2 <- function(x, y){
+  err <- rep(NA,nh)
+  n <- length(y)
+  for (k in 1:nh){
+    H <- wi(x, x, h_seq[k])
+    yhat <- H%*%y
+    err[k] <- sum((y-yhat/(1-diag(H)))^2)
+  }
+  h <- h_seq[which.min(err)]
+  H <- wi(x, x, h)
+  yhat <- H%*%y
+  return(list(yhat = yhat, h = h, H=H))
+}
+
+data <- read.csv("utilities.csv",header=T)
+y <- data$gasbill/data$billingdays
+x <- data$temp
+
+# x <- scale(x)
+# y <- scale(y)
+
+out <- cross_va_LOO_2(x,y)
+
+yhat <- out$yhat
+out$h
+H <- out$H
+png("figures/CI.png",width=600,height=600)
+plot(x,y)
+points(x,yhat,col="red")
+sig2 <- as.numeric(var(y))
+n <- length(y)
+sd <- rep(0,n)
+for (i in 1:n){
+  sd[i] <- sqrt(sig2*sum(H[i,]^2))
+  segments(x[i], yhat[i]-2*sd[i], x[i], yhat[i]+2*sd[i],col="red")
+}
+dev.off()
+## residuals
+png("figures/residuals.png",width=600,height=600)
+residuals <- yhat-y
+plot(x,residuals)
+dev.off()
 
 
 
