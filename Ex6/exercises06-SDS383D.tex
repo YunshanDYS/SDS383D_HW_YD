@@ -302,14 +302,14 @@ Like I said, proving this lemma is optional. I will prove it in class, but consi
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{Ex6/figures/crossva_LOO.png}
-    \caption{Estimated Functions.}
+    \caption{Estimated Functions using LOOCV.}
     %\label{fig:hist_betai}
 \end{figure}
 
 \end{enumerate}
 
 
-
+\newpage
 \section{Local polynomial regression}
 
 Kernel regression has a nice interpretation as a ``locally constant'' estimator, obtained from locally weighted least squares.  To see this, suppose we observe pairs $(x_i, y_i)$ for $i = 1, \ldots, n$ from our new favorite model, $y_i = f(x_i) + \epsilon_i$ and wish to estimate the value of the underlying function $f(x)$ at some point $x$ by weighted least squares.  Our estimate is the scalar\footnote{Because we are only talking about the value of the function at a specific point $x$, not the whole function.} quantity
@@ -336,6 +336,48 @@ where $w_i \equiv w(x_i, x)$ are the kernel weights defined just above, normaliz
 
 Note: if you get bogged down doing the general polynomial case, just try the linear case.
 
+\bigskip \jie
+\begin{align*}
+    g_x(u;a) &= a_0 + \sum_{k=1}^D a_j (u-x)^k \\
+    &= \begin{bmatrix}
+    1 & (u-x) & \dots & (u-x)^D
+    \end{bmatrix}
+    \begin{bmatrix}
+    a_0 \\ a_1 \\ \vdots \\ a_D
+    \end{bmatrix}
+\end{align*}
+
+\begin{align*}
+    \hat{a} &= \arg \min \sum_{i=1}^n w_i \{y_i - g_x(x_i; a)\}^2 \\
+    &= \arg \min (Y - Xa)^T W (Y - Xa),
+\end{align*}
+where
+\begin{align*}
+    X_{n \times (D+1)} = \begin{bmatrix}
+    1 & (x_1 - x) & \dots & (x_1 - x)^D \\
+    1 & (x_2 - x) & \dots & (x_2 - x)^D \\
+    \vdots & \vdots & \vdots & \vdots \\
+    1 & (x_n - x) & \dots & (x_n - x)^D \\
+    \end{bmatrix},
+\end{align*}
+and $Y = [y_1, \dots, y_n]^T$, $a = [a_0, \dots, a_D]^T$, and $W = \diag (w_1, \dots, w_n)$.
+
+\begin{align*}
+    \hat{a} &= \arg \min (Y - Xa)^T W (Y - Xa) \\
+    &= \arg \min [a^TX^T W X a - 2a^T X^T W Y + Y^T WY]
+\end{align*}
+Then,
+$$2X^T W Xa - 2X^T WY = 0.$$
+Therefore,
+$$\hat{a} = (X^T W X)^{-1} X^T W Y.$$
+By extension,
+$$\hat{f} (x) = \hat{a}_0,$$
+therefore, 
+$$\hat{f}(x) = e^T \hat{a},$$
+where $e = [1, 0, \dots, 0]^T $.
+
+\bigskip
+
 \item From this, conclude that for the special case of the local linear estimator ($D=1$), we can write $\hat{f}(x)$ as a linear smoother of the form
 $$
 \hat{f}(x) = \frac{\sum_{i=1}^n w_i(x) y_i }{\sum_{i=1}^n w_i(x)} \, ,
@@ -346,7 +388,117 @@ w_i(x) &=& K \left( \frac{x-x_i}{h} \right) \left\{  s_2(x) - (x_i-x) s_1(x) \ri
 s_j(x) &=& \sum_{i=1}^n K \left( \frac{x-x_i}{h} \right) (x_i-x)^j \, .
 \end{eqnarray*}
 
+\bigskip \jie
+WLOG, assume the weights are already normalized, $w_i = K (\frac{x_i - x}{h})$, and $\sum_i K (\frac{x_i - x}{h}) = 1$.
+\begin{align*}
+    X = \begin{bmatrix}
+    1 & (x_1 - x) \\
+    \vdots & \vdots \\
+    1 & (x_n - x)
+    \end{bmatrix}
+\end{align*}
+\begin{align*}
+    X^T W X &= \begin{bmatrix}
+    1 & \dots & 1 \\
+    (x_1 -x) & \dots & (x_n - x)
+    \end{bmatrix}
+    \begin{bmatrix}
+    w_1 & & \\
+    & \ddots & \\
+    & & w_n
+    \end{bmatrix}
+    \begin{bmatrix}
+    1 & (x_1 - x) \\
+    \vdots & \vdots \\
+    1 & (x_n - x)
+    \end{bmatrix} \\
+    & = \begin{bmatrix}
+    w_1 & \dots & w_n \\
+    w_1(x_1 -x) & \dots & w_n(x_n - x)
+    \end{bmatrix}
+    \begin{bmatrix}
+    1 & (x_1 - x) \\
+    \vdots & \vdots \\
+    1 & (x_n - x)
+    \end{bmatrix} \\
+    &= \begin{bmatrix}
+    \sum_i w_i & \sum_i w_i (x_i - x) \\
+    \sum_i w_i (x_i - x) & \sum_i w_i (x_i - x)^2
+    \end{bmatrix} \\
+    &= \begin{bmatrix}
+    1 & s_1 \\
+    s_1 & s_2
+    \end{bmatrix} \\
+\end{align*}
+Therefore,
+\begin{align*}
+    (X^T W X)^{-1} = \frac{1}{s_2 - s_1^2} 
+    \begin{bmatrix}
+    s_2 & -s_1 \\
+    -s_1 & 1
+    \end{bmatrix}
+\end{align*}
+Then,
+\begin{align*}
+    \hat{a} &= (X^T W X)^{-1} X^T W Y\\
+    &= \frac{1}{s_2 - s_1^2} 
+    \begin{bmatrix}
+    s_2 & -s_1 \\
+    -s_1 & 1
+    \end{bmatrix}
+    \begin{bmatrix}
+    1 & \dots & 1 \\
+    (x_1 - x) & \dots & (x_n - x) 
+    \end{bmatrix}
+    \begin{bmatrix}
+    w_1 y_1 \\
+    \vdots \\ 
+    w_n y_n
+    \end{bmatrix} \\
+    &= \frac{1}{s_2 - s_1^2} 
+    \begin{bmatrix}
+    s_2 - (x_1 -x)s_1 & \dots & s_2 - (x_n -x)s_1 \\
+    -s_1 + (x_1 - x) & \dots & - s_1 + (x_n - x) 
+    \end{bmatrix}
+    \begin{bmatrix}
+    w_1 y_1 \\
+    \vdots \\ 
+    w_n y_n
+    \end{bmatrix} \\
+    \hat{f}(x) &= \frac{1}{s_2 - s_1^2} \sum_i [s_2 - (x_i - x)s_1] K(\frac{x_i - x}{h})y_i \\
+    &= \frac{1}{s_2 - s_1^2} \sum_i w_i (x) y_i
+\end{align*}
+And,
+\begin{align*}
+    \sum_i w_i (x) &= \sum_i K(\frac{x_i - x}{h}) \{s_2(x) - (x_i - x) s_1(x)\} \\
+    &= s_2(x) - s_1^2(x)
+\end{align*}
+Therefore,
+\begin{align*}
+    \hat{f}(x) = \frac{\sum_i w_i(x) y_i}{\sum_i w_i(x)}.
+\end{align*}
+\bigskip
+
 \item Suppose that the residuals have constant variance $\sigma^2$ (that is, the spread of the residuals does not depend on $x$).  Derive the mean and variance of the sampling distribution for the local polynomial estimate $\hat{f}(x)$ at some arbitrary point $x$.  Note: the random variable $\hat{f}(x)$ is just a scalar quantity at $x$, not the whole function.
+
+\bigskip \jie
+\begin{align*}
+    \hat{f}(x) &= e^T \hat{a} \\
+    &= e^T (X^T W X)^{-1} X^T W Y
+\end{align*}
+And, $E[Y] = f(x)$, $Var(Y) = \sigma^2 I$.
+Then,
+$$E[\hat{f}(x)] = e^T (X^T W X)^{-1} X^TWf(x).$$
+$$Var[\hat{f}(x)] = \sigma^2 e^T (X^T W X)^{-1} X^T W W^T X (X^T W X)^{-1} e.$$
+Or we can write
+\begin{align*}
+    \hat{f}(x) &= \frac{\sum_{i=1}^n w_i(x) y_i }{\sum_{i=1}^n w_i(x)} \\
+    &= \tilde{w}^T Y,
+\end{align*}
+where $\tilde{w} = [\frac{w_1(x)}{\sum_i w_i(x)}, \dots, \frac{w_n(x)}{\sum_i w_i(x)}]^T$, and the $w_i(x)$ are specified in (B). Then,
+$$E[\hat{f}(x)] = \tilde{w}^T f(x).$$
+$$Var[\hat{f}(x)] = \sigma^2 \tilde{w}^T I \tilde{w} = \sigma^2 ||\tilde{w}||_2^2 \leq \sigma^2.$$
+\bigskip
 
 \item We don't know the residual variance, but we can estimate it.  A basic fact is that if $x$ is a random vector with mean $\mu$ and covariance matrix $\Sigma$, then for any symmetric matrix $Q$ of appropriate dimension, the quadratic form $x^T Q x$ has expectation
 $$
@@ -357,6 +509,21 @@ $$
 \hat{\sigma}^2 = \frac{\Vert r \Vert_2^2}{n - 2\mbox{tr}(H) + \mbox{tr}(H^T H)} \, ,
 $$
 and simplify things as much as possible.  Roughly under what circumstances will this estimator be nearly unbiased for large $n$?  Note: the quantity $2\mbox{tr}(H) - \mbox{tr}(H^T H)$ is often referred to as the ``effective degrees of freedom'' in such problems.
+
+\bigskip \jie
+\begin{align*}
+    \hat{\sigma}^2 = \frac{(y - Hy)^T (y - Hy)}{n - 2 tr(H) + tr(H^TH)}
+\end{align*}
+\begin{align*}
+    E[\hta{\sigma}^2] &= E\{ \frac{y^Ty - 2y^T Hy + y^T H^T Hy}{n- 2tr(H) + tr(H^TH)} \} \\
+    &= \frac{E[y^Ty] - E[y^THy] + 2E[y^TH^THy]}{n- 2tr(H) + tr(H^TH)} \\
+    &= \frac{n\sigma^2 + \mu^T \mu - 2[tr(H\sigma^2 I) + \mu^T H \mu] + tr(H^TH\sigma^2I) + \mu^T H^T H \mu}{n- 2tr(H) + tr(H^TH)} \\
+    &= \sigma^2 + \frac{\mu^T \mu - 2 \mu^T H\mu + \mu^T H^T H \mu}{n- 2tr(H) + tr(H^TH)} \\
+    &= \sigma^2 + \frac{(\mu- H\mu)^T(\mu- H\mu)}{n- 2tr(H) + tr(H^TH)}
+\end{align*}
+If the bias of the estimate, $||\mu - H\mu||$ is small when $n$ goes to infinity, this is nearly unbiased for large $n$.
+\bigskip
+
 
 \item Write code that fits the local linear estimator using a Gaussian kernel for a specified choice of bandwidth $h$. Then load the data in ``utilities.csv'' into R.\footnote{On the class GitHub site.}  This data set shows the monthly gas bill (in dollars) for a single-family home in Minnesota, along with the average temperature in that month (in degrees F), and the number of billing days in that month.  Let $y$ be the average daily gas bill in a given month (i.e.~dollars divided by billing days), and let $x$ be the average temperature.  Fit $y$ versus $x$ using local linear regression and some choice of kernel.  Choose a bandwidth by leave-one-out cross-validation.
 
