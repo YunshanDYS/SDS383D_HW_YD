@@ -241,6 +241,11 @@ ggsave("figures/crossva_LOO.png",width=15,height=12)
 
 
 ### Local linear regression
+weight <- function(x, xstar, h, Kern){
+  w <- Kern(x - xstar, h)
+  return(w)
+}
+
 ## Function for s_1(x)
 s1 <- function(x, x_new, h){
   n <- length(x_new)
