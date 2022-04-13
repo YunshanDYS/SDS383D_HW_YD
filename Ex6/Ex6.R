@@ -246,23 +246,23 @@ weight <- function(x, xstar, h, Kern){
   return(w)
 }
 
+## Kernel Function
+# s: distance
+# h: band width
+Kern <- function(s, h){
+  K <- dnorm(s/h,0,1)
+  return(K)
+}
+
 ## Function for s_1(x)
 s1 <- function(x, x_new, h){
-  n <- length(x_new)
-  s1 <- rep(0,n)
-  for (i in 1:n){
-    s1[i] <- sum(weight(x, x_new[i], h, Kern) * (x - x_new[i]))
-  }
+  s1 <- sum(weight(x, x_new, h, Kern) * (x - x_new))
   return(s1)
 }
 
 ## Function for s_2(x)
 s2 <- function(x, x_new, h){
-  n <- length(x_new)
-  s2 <- rep(0,n)
-  for (i in 1:n){
-    s2[i] <- sum(weight(x, x_new[i], h, Kern) * (x - x_new[i])^2)
-  }
+  s2 <- sum(weight(x, x_new, h, Kern) * (x - x_new)^2)
   return(s2)
 }
 
@@ -271,7 +271,7 @@ wi <- function(x, x_new, h){
   n <- length(x_new)
   wi <- matrix(0,ncol=n,nrow=n)
   for (i in 1:n){
-    wi[i,] <- weight(x, x_new[i], h, Kern) * (s2(x,x_new,h) - (x - x_new[i])*s1(x,x_new,h))
+    wi[i,] <- weight(x, x_new[i], h, Kern) * (s2(x,x_new[i],h) - (x - x_new[i])*s1(x,x_new[i],h))
     wi[i,] <- wi[i,]/sum(wi[i,])
   }
   return(wi)
@@ -285,8 +285,8 @@ cross_va_LOO_2 <- function(x, y){
   n <- length(y)
   for (k in 1:nh){
     H <- wi(x, x, h_seq[k])
-    yhat <- H%*%y
-    err[k] <- sum((y-yhat/(1-diag(H)))^2)
+    yhat <- H%*%matrix(y,ncol=1)
+    err[k] <- sum(((y-yhat)/(1-diag(H)))^2)
   }
   h <- h_seq[which.min(err)]
   H <- wi(x, x, h)
@@ -307,7 +307,7 @@ yhat <- out$yhat
 out$h
 H <- out$H
 png("figures/CI.png",width=600,height=600)
-plot(x,y)
+plot(x,y,ylim=c(-1,10))
 points(x,yhat,col="red")
 sig2 <- as.numeric(var(y))
 n <- length(y)
