@@ -165,7 +165,7 @@ cross_va_LOO <- function(x, y){
       H[i,] <- weight(x, x[i], h_seq[k], Kern)
     }
     yhat <- H%*%y
-    err[k] <- sum((y-yhat/(1-diag(H)))^2)
+    err[k] <- sum(((y-yhat)/(1-diag(H)))^2)
   }
   h <- h_seq[which.min(err)]
   for (i in 1:ngrid){
