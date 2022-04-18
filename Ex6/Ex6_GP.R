@@ -30,11 +30,11 @@ GP <- function(x, b, tau1sq, tau2sq, covf = "Exp2Sigma"){
 }
 
 ## Simulate GP with different b, tau1sq, tau2sq, Exp2Sigma
-set.seed(1999)
+set.seed(1234)
 x <- runif(100)
 tau2sq <- 1e-6
 tau1sq <- 1
-b_seq <- c(0.01, 0.1, 0.5, 1, 2)
+b_seq <- c(0.1, 0.25, 0.5, 0.7, 1)
 y <- matrix(NA, ncol = 5, nrow = 100)
 for (i in 1:5){
   y[ ,i] <- GP(x, b_seq[i], tau1sq, tau2sq)
@@ -46,14 +46,15 @@ ggplot(df,
        aes(x = x,
            y = value,
            color = variable)) +  
-  geom_point() +
+  geom_line() +
   scale_color_hue(labels = paste0(rep("b = ", 5),b_seq)) +
-  ggtitle("tau1sq = 1, tau2sq = 1e-6")
+  ggtitle("tau1sq = 1, tau2sq = 1e-6") +
+  ylim(-3,3)
 ggsave("figures/GP_bseq.png", width = 8, height = 6)
 
 tau2sq <- 1e-6
-b <- 1
-tau1sq_seq <- c(0.01, 0.1, 0.5, 1, 2)
+b <- 0.5
+tau1sq_seq <- c(0.1, 1, 2, 3, 5)
 y <- matrix(NA, ncol = 5, nrow = 100)
 for (i in 1:5){
   y[ ,i] <- GP(x, b, tau1sq_seq[i], tau2sq)
@@ -65,15 +66,16 @@ ggplot(df,
        aes(x = x,
            y = value,
            color = variable)) +  
-  geom_point() +
+  geom_line() +
   scale_color_hue(labels = paste0(rep("tau1sq = ", 5),tau1sq_seq)) +
-  ggtitle("b = 1, tau2sq = 1e-6")
+  ggtitle("b = 0.5, tau2sq = 1e-6") +
+  ylim(-3,3)
 ggsave("figures/GP_tau1sq_seq.png", width = 8, height = 6)
 
 
 tau1sq <- 1
 b <- 1
-tau2sq_seq <- c(0, 0.01, 0.1, 1, 2)
+tau2sq_seq <- c(0, 0.0001, 0.001, 0.01, 0.1)
 y <- matrix(NA, ncol = 5, nrow = 100)
 for (i in 1:5){
   y[ ,i] <- GP(x, b, tau1sq, tau2sq_seq[i])
@@ -85,17 +87,18 @@ ggplot(df,
        aes(x = x,
            y = value,
            color = variable)) +  
-  geom_point() +
+  geom_line() +
   scale_color_hue(labels = paste0(rep("tau2sq = ", 5),tau2sq_seq)) +
-  ggtitle("b = 1, tau1sq = 1")
+  ggtitle("b = 1, tau1sq = 1") +
+  ylim(-3,3)
 ggsave("figures/GP_tau2sq_seq.png", width = 8, height = 6)
 
 
 ## Simulate GP with different b, tau1sq, tau2sq, M52Sigma
-set.seed(1999)
+set.seed(1234)
 tau2sq <- 1e-6
 tau1sq <- 1
-b_seq <- c(0.01, 0.1, 0.5, 1, 2)
+b_seq <- c(0.1, 0.25, 0.5, 0.7, 1)
 y <- matrix(NA, ncol = 5, nrow = 100)
 for (i in 1:5){
   y[ ,i] <- GP(x, b_seq[i], tau1sq, tau2sq, covf = "M52Sigma")
@@ -107,14 +110,15 @@ ggplot(df,
        aes(x = x,
            y = value,
            color = variable)) +  
-  geom_point() +
+  geom_line() +
   scale_color_hue(labels = paste0(rep("b = ", 5),b_seq)) +
-  ggtitle("tau1sq = 1, tau2sq = 1e-6")
+  ggtitle("tau1sq = 1, tau2sq = 1e-6") +
+  ylim(-3,3)
 ggsave("figures/GP_bseq_M52.png", width = 8, height = 6)
 
 tau2sq <- 1e-6
-b <- 1
-tau1sq_seq <- c(0.01, 0.1, 0.5, 1, 2)
+b <- 0.5
+tau1sq_seq <- c(0.1, 1, 2, 3, 5)
 y <- matrix(NA, ncol = 5, nrow = 100)
 for (i in 1:5){
   y[ ,i] <- GP(x, b, tau1sq_seq[i], tau2sq, covf = "M52Sigma")
@@ -126,15 +130,16 @@ ggplot(df,
        aes(x = x,
            y = value,
            color = variable)) +  
-  geom_point() +
+  geom_line() +
   scale_color_hue(labels = paste0(rep("tau1sq = ", 5),tau1sq_seq)) +
-  ggtitle("b = 1, tau2sq = 1e-6")
+  ggtitle("b = 0.5, tau2sq = 1e-6") +
+  ylim(-3,3)
 ggsave("figures/GP_tau1sq_seq_M52.png", width = 8, height = 6)
 
 
 tau1sq <- 1
 b <- 1
-tau2sq_seq <- c(0, 0.01, 0.1, 1, 2)
+tau2sq_seq <- c(0, 0.0001, 0.001, 0.01, 0.1)
 y <- matrix(NA, ncol = 5, nrow = 100)
 for (i in 1:5){
   y[ ,i] <- GP(x, b, tau1sq, tau2sq_seq[i], covf = "M52Sigma")
@@ -146,9 +151,10 @@ ggplot(df,
        aes(x = x,
            y = value,
            color = variable)) +  
-  geom_point() +
+  geom_line() +
   scale_color_hue(labels = paste0(rep("tau2sq = ", 5),tau2sq_seq)) +
-  ggtitle("b = 1, tau1sq = 1")
+  ggtitle("b = 1, tau1sq = 1") +
+  ylim(-3,3)
 ggsave("figures/GP_tau2sq_seq_M52.png", width = 8, height = 6)
 
 
