@@ -300,6 +300,9 @@ Like I said, proving this lemma is optional. I will prove it in class, but consi
 
 \item Use the leave-one-out lemma to revisit the examples you simulated in Part B, using leave-one-out cross validation to select $h$ in each case.  Because of the leave-one-out lemma, you won't need to actually refit the model N times!  
 
+\bigskip \jie
+We can tell from the results that using leave-one-out lemma to select the optimal $h$, we can get a better fit compared to the results we get from the last part. There could be several reasons that the leave-one-out algorithm performs better in this case, for example that we can use more data points, instead of randomly choose a part of data to use for training and testing.
+
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{Ex6/figures/crossva_LOO.png}
@@ -747,8 +750,8 @@ We have
 \end{align*}
 The posterior 
 \begin{align*}
-    p(f(x) \mid y) &\propto \exp\{-\frac{1}{2\sigma^2} (y _ f(x))^T(y - f(x)) \} \cdot \exp \{ -\frac{1}2 f(x)^T C^{_1} f(x) \} \\
-    &= \exp \{ -\frac{1}2 [f(x)^T (\sigma^{-2} I + C^{-1}] f(x) - 2 f(x)^T (\sigma^{-2}y)] \} \\
+    p(f(x) \mid y) &\propto \exp\{-\frac{1}{2\sigma^2} (y _ f(x))^T(y - f(x)) \} \cdot \exp \{ -\frac{1}2 f(x)^T C^{-1} f(x) \} \\
+    &= \exp \{ -\frac{1}2 [f(x)^T (\sigma^{-2} I + C^{-1}) f(x) - 2 f(x)^T (\sigma^{-2}y)] \} \\
     &\propto N(\tilde{\mu}, \tilde{\Sigma}),
 \end{align*}
 where
@@ -756,11 +759,42 @@ $$\tilde{\Sigma} = (\sigma^{-2}I + C^{-1})^{-1}, \;\; \tilde{\mu} = \tilde{\Sigm
 
 \item As before, suppose we observe data $y_i = f(x_i) + \epsilon_i$, $\epsilon_i \sim N(0, \sigma^2)$, for $i=1, \ldots, N$.  Now we wish to predict the value of the function $f(x^{\star})$ at some new point $x^{\star}$ where we haven't seen previous data.  Suppose that $f$ has a mean-zero Gaussian process prior, $f \sim GP(0, C)$.  Show that the posterior mean $E\{ f(x^{\star}) \mid y_1, \ldots, y_N \}$ is a linear smoother, and derive expressions both for the smoothing weights and the posterior variance of $f(x^{\star})$.
 
+\bigskip \jie
+Similar to (B) in the previous section, and (A), for a new point $x^*$, we can write the posterior distribution as
+\begin{align*}
+    p(f(x^*) \mid x,y) = N(\mu_{post}, \Sigma_{post}),
+\end{align*}
+where
+$$\mu_{post} = \tilde{C}(C + \sigma^2 I)^{-1}y.$$
+$$\Sigma_{post} = C^* - \tilde{C}(C + \sigma^2 I)^{-1}\tilde{C}^T.$$
+and $C^* = C(x^*, x^*)$, $\tilde{C} = C(x, x^*)$, $C = C(x, x)$.
+Because we can write 
+$$E\{f(x^*) \mid y\} = \tilde{C}(C + \sigma^2 I)^{-1}y.$$
+It is a linear smoother, where each row of the matrix 
+$$ \tilde{C}(C + \sigma^2 I)^{-1}$$
+is the weight. And the variance of $f(x^*)$ is already given above.
+
+
 \item Go back to the utilities data, and plot the pointwise posterior mean and 95\% posterior confidence interval for the value of the function at each of the observed points $x_i$ (again, superimposed on top of the scatter plot of the data itself).  Choose $\tau^2_2$ to be very small, say $10^{-6}$, and choose $(b, \tau^2_1)$ that give a sensible-looking answer.\footnote{If you're bored with the utilities data, instead try the data in ethanol.csv, in which the NOx emissions of an ethanol engine are measured as the engine's fuel-air equivalence ratio (E in the data set) is varied.  Your goal would be to model NOx as a function of E using a Gaussian process. }
+
+\bigskip \jie
+I choose $b =15, \tau_1^2 = 1, \tau_2^2 = 10^{-6}$. And Figure shows the posterior mean and the confidence interval.
 
 \item Let $y_i = f(x_i) + \epsilon_i$, and suppose that $f$ has a Gaussian-process prior under the Matern(5/2) covariance function $C$ with scale $\tau^1_2$, range $b$, and nugget $\tau^2_2$.  Derive an expression for the marginal distribution of $y = (y_1 \ldots, y_N)$ in terms of $(\tau^2_1, b, \tau^2_2)$, integrating out the random function $f$.  This is called a marginal likelihood.
 
+\bigskip \jie
+Because we have
+\begin{align*}
+    y &\sim N(f(x), \sigma^2 I) \\
+    f(x) &\sim N(0,C)
+\end{align*}
+Using the property of Gaussian distribution, we know that the marginal likelihood
+$$p(y) = N(0, C + \sigma^2 I).$$
+
 \item Return to the utilities or ethanol data sets. Fix $\tau^2_2 = 0$, and evaluate the log of the marginal likelihood function $p(y \mid \tau^2_1, b)$ over a discrete 2-d grid of points.\footnote{Don't just use a black-box optimizer; we want to make sure we get the best solution if there are multiple modes.} If you're getting errors in your code with $\tau^2_2 = 0$, use something very small instead.  Use this plot to choose a set of values $(\hat{\tau^2_1}, \hat{b})$ for the hyperparameters.  Then use these hyperparameters to compute the posterior mean for $f$, given $y$.  Comment on any lingering concerns you have with your fitted model.
+
+\bigskip \jie
+I evaluated $b$ and $\tau_1^2$ on a grid $[10,80] \times [10,80]$. And Figure shows the heatmap of the log marginal distribution. The optimal parameter I got are $\hat{\tau}_1^2 = 43.93939$, and $\hat{b} = 64.44444$. And Figure shows the results I got using the parameters above.
 
 \item In \verb|weather.csv| you will find data on two variables from 147 weather stations in the American Pacific northwest.
 \begin{compactdesc}
