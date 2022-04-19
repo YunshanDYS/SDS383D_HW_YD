@@ -778,7 +778,14 @@ is the weight. And the variance of $f(x^*)$ is already given above.
 \item Go back to the utilities data, and plot the pointwise posterior mean and 95\% posterior confidence interval for the value of the function at each of the observed points $x_i$ (again, superimposed on top of the scatter plot of the data itself).  Choose $\tau^2_2$ to be very small, say $10^{-6}$, and choose $(b, \tau^2_1)$ that give a sensible-looking answer.\footnote{If you're bored with the utilities data, instead try the data in ethanol.csv, in which the NOx emissions of an ethanol engine are measured as the engine's fuel-air equivalence ratio (E in the data set) is varied.  Your goal would be to model NOx as a function of E using a Gaussian process. }
 
 \bigskip \jie
-I choose $b =15, \tau_1^2 = 1, \tau_2^2 = 10^{-6}$. And Figure shows the posterior mean and the confidence interval.
+I choose $b =15, \tau_1^2 = 1, \tau_2^2 = 10^{-6}$. And Figure \ref{fig:CI_GP} shows the posterior mean and the confidence interval.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Ex6/figures/CI_GP.png}
+    \caption{The posterior mean and the confidence interval.}
+    \label{fig:CI_GP}
+\end{figure}
 
 \item Let $y_i = f(x_i) + \epsilon_i$, and suppose that $f$ has a Gaussian-process prior under the Matern(5/2) covariance function $C$ with scale $\tau^1_2$, range $b$, and nugget $\tau^2_2$.  Derive an expression for the marginal distribution of $y = (y_1 \ldots, y_N)$ in terms of $(\tau^2_1, b, \tau^2_2)$, integrating out the random function $f$.  This is called a marginal likelihood.
 
@@ -794,8 +801,22 @@ $$p(y) = N(0, C + \sigma^2 I).$$
 \item Return to the utilities or ethanol data sets. Fix $\tau^2_2 = 0$, and evaluate the log of the marginal likelihood function $p(y \mid \tau^2_1, b)$ over a discrete 2-d grid of points.\footnote{Don't just use a black-box optimizer; we want to make sure we get the best solution if there are multiple modes.} If you're getting errors in your code with $\tau^2_2 = 0$, use something very small instead.  Use this plot to choose a set of values $(\hat{\tau^2_1}, \hat{b})$ for the hyperparameters.  Then use these hyperparameters to compute the posterior mean for $f$, given $y$.  Comment on any lingering concerns you have with your fitted model.
 
 \bigskip \jie
-I evaluated $b$ and $\tau_1^2$ on a grid $[10,80] \times [10,80]$. And Figure shows the heatmap of the log marginal distribution. The optimal parameter I got are $\hat{\tau}_1^2 = 43.93939$, and $\hat{b} = 64.44444$. And Figure shows the results I got using the parameters above.
+I evaluated $b$ and $\tau_1^2$ on a grid $[10,80] \times [10,80]$. And Figure \ref{fig:heatmap} shows the heatmap of the log marginal distribution. The optimal parameter I got are $\hat{\tau}_1^2 = 43.93939$, and $\hat{b} = 64.44444$. And Figure \ref{fig:CI_GP_2} shows the results I got using the parameters above.
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{Ex6/figures/heatmap.png}
+    \caption{Heatmap of the log marginal over a grid.}
+    \label{fig:heatmap}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Ex6/figures/CI_GP_2.png}
+    \caption{The posterior mean and the confidence interval using the hyperparameters chosen above.}
+    \label{fig:CI_GP_2}
+\end{figure}
+
+\newpage 
 \item In \verb|weather.csv| you will find data on two variables from 147 weather stations in the American Pacific northwest.
 \begin{compactdesc}
 \item[pressure]: the difference between the forecasted pressure and the actual pressure reading at that station (in Pascals)
@@ -807,6 +828,39 @@ d^2(x, z) = \frac{(x_1 - z_1)^2}{b_1^2} +  \frac{(x_2 - z_2)^2}{b_2^2} \, .
 $$
 Justify your reasoning for using Euclidean distance or this ``nonisotropic'' distance.
 
+\bigskip \jie
+I use the optimal hyper parameters that were chosen.
+Using the second covariance function, for the temperature data, we have 
+\begin{lstlisting}
+> df[which.max(lp),]
+     tau1sq        b1        b2        lp
+1266      6 0.7978947 0.7978947 -299.8909
+\end{lstlisting}
+And using the original Squared exponential covariance function
+\begin{lstlisting}
+> df[which.max(lp),]
+   tau1sq        b1        lp
+66      6 0.7978947 -299.8909
+\end{lstlisting}
+
+And for the pressure data,
+\begin{lstlisting}
+> df[which.max(lp),]
+      tau1sq        b1        b2        lp
+429 184.2105 0.2726316 0.2726316 -30935.64
+\end{lstlisting}
+\begin{lstlisting}
+> df[which.max(lp),]
+     tau1sq        b1        lp
+29 184.2105 0.2726316 -30935.64
+\end{lstlisting}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Ex6}
+    \caption{The posterior mean and the confidence interval using the hyperparameters chosen above.}
+    \label{fig:CI_GP_2}
+\end{figure}
 
 %\item In \verb|droslong.csv|, you will find a small subset of a time-course DNA microarray experiment.  The gene-expression profiles of 2000 different genes in the fruit fly (Drosophila) genome are tracked over time during embryogenesis; you are getting data on 14 of these genes, organized in three groups (think of these as marking which cellular pathway that gene influences).  For each gene at each time point, there are 3 ``technical replicates''---that is, three copies of the same biological material from the same fly, run through the same process to measure gene expression.
 %
